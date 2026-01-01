@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice {{ sale.invoice_no }}</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #F3E5F5; padding: 40px; color: #333; }
+        .invoice-box {
+            max-width: 700px; margin: auto; padding: 30px; background: #fff;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1); border-top: 8px solid #4A148C;
+        }
+        .header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .title { font-size: 24px; font-weight: bold; color: #4A148C; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th { background: #4A148C; color: white; padding: 10px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+        .total-row td { border-top: 2px solid #4A148C; font-weight: bold; font-size: 16px; }
+        .btn-print {
+            display: block; width: 100%; text-align: center; background: #7B1FA2; color: white;
+            padding: 12px; text-decoration: none; margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <div class="header">
+            <div>
+                <div class="title">PHARMA TRUST</div>
+                <small>Secure. Reliable. Care.</small>
+            </div>
+            <div style="text-align:right;">
+                <h3>INVOICE</h3>
+                <p>#{{ sale.invoice_no }}</p>
+                <p style="font-size:12px;">{{ sale.created_at.strftime('%d-%b-%Y') }}</p>
+            </div>
+        </div>
+
+        <p><strong>Billed To:</strong> {{ sale.customer_name or 'Walk-in Customer' }}</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.brand_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.unit_price }}</td>
+                    <td>₹{{ item.quantity * item.unit_price }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="total-row">
+                    <td colspan="3" style="text-align:right;">GRAND TOTAL:</td>
+                    <td>₹{{ sale.total_amount - sale.loyalty_points_used }}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <center style="font-size:12px; color:#777;">Thank you for your business!</center>
+    </div>
+    <a href="javascript:window.print()" class="btn-print">🖨️ Print Invoice</a>
+    <a href="/sales/billing" class="btn-print" style="background:#4A148C; margin-top:10px;">← New Sale</a>
+</body>
+</html>

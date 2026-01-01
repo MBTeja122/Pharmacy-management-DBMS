@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice {{ sale.invoice_no }}</title>
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; background: #eee; padding: 20px; }
+        
+        .invoice-container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #333; padding-bottom: 10px; }
+        .store-name { font-size: 24px; font-weight: bold; text-transform: uppercase; }
+        .meta-info { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+        th { border-bottom: 1px solid #000; text-align: left; padding: 5px 0; }
+        td { padding: 5px 0; }
+        .text-right { text-align: right; }
+
+        .totals { margin-top: 20px; border-top: 1px solid #000; padding-top: 10px; }
+        .total-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .grand-total { font-weight: bold; font-size: 18px; border-top: 2px dashed #333; padding-top: 10px; margin-top: 5px; }
+
+        .footer { text-align: center; margin-top: 30px; font-size: 12px; }
+
+        /* BUTTONS (Hidden when printing) */
+        .actions { text-align: center; margin-top: 20px; }
+        .btn { padding: 10px 20px; text-decoration: none; color: white; border-radius: 5px; font-family: sans-serif; cursor: pointer; border: none; }
+        .btn-print { background: #333; }
+        .btn-new { background: #4A148C; }
+
+        /* PRINT STYLES */
+        @media print {
+            body { background: white; padding: 0; }
+            .invoice-container { box-shadow: none; max-width: 100%; padding: 0; }
+            .actions { display: none; } /* Hide buttons on paper */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="invoice-container">
+        <div class="header">
+            <div class="store-name">PHARMA TRUST</div>
+            <div>123, Health Avenue, Medical District</div>
+            <div>Phone: +91-98765-43210</div>
+            <div style="margin-top:5px; font-weight:bold;">PAYMENT RECEIPT</div>
+        </div>
+
+        <div class="meta-info">
+            <div>
+                <strong>Inv No:</strong> {{ sale.invoice_no }}<br>
+                <strong>Date:</strong> {{ sale.created_at.strftime('%d-%m-%Y %H:%M') }}<br>
+                <strong>Served By:</strong> {{ sale.pharmacist_name }}
+            </div>
+            <div class="text-right">
+                <strong>Customer:</strong> {{ sale.customer_name or 'Walk-in' }}<br>
+                {% if sale.customer_phone %}
+                Phone: {{ sale.customer_phone }}<br>
+                {% endif %}
+                Payment: {{ sale.payment_method }}
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th width="50%">Item</th>
+                    <th width="15%" class="text-right">Price</th>
+                    <th width="10%" class="text-right">Qty</th>
+                    <th width="25%" class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>
+                        {{ item.brand_name }}<br>
+                        <small style="font-size:10px;">{{ item.generic_name }}</small>
+                    </td>
+                    <td class="text-right">₹{{ item.unit_price }}</td>
+                    <td class="text-right">{{ item.quantity }}</td>
+                    <td class="text-right">₹{{ item.unit_price * item.quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="totals">
+            <div class="total-row">
+                <span>Subtotal:</span>
+                <span>₹{{ sale.total_amount + sale.loyalty_points_used }}</span>
+            </div>
+            
+            {% if sale.loyalty_points_used > 0 %}
+            <div class="total-row" style="color:#C62828;">
+                <span>Loyalty Discount:</span>
+                <span>- ₹{{ sale.loyalty_points_used }}</span>
+            </div>
+            {% endif %}
+
+            <div class="total-row grand-total">
+                <span>GRAND TOTAL:</span>
+                <span>₹{{ sale.total_amount }}</span>
+            </div>
+        </div>
+
+        <div style="margin-top:15px; border:1px solid #333; padding:5px; text-align:center; font-size:12px;">
+            Points Earned: <strong>{{ sale.loyalty_points_earned }}</strong>
+        </div>
+
+        <div class="footer">
+            <p>Thank you for your business!</p>
+            <p>Keep this receipt for returns within 7 days.</p>
+        </div>
+
+        <div class="actions">
+            <button onclick="window.print()" class="btn btn-print">🖨️ Print Receipt</button>
+            <a href="/sales/billing" class="btn btn-new">🛒 New Sale</a>
+        </div>
+    </div>
+
+    <script>
+        // Optional: Auto-print when page loads
+        // window.onload = function() { window.print(); }
+    </script>
+</body>
+</html>

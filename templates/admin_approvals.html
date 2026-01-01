@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+
+{% block title %}Staff Maintenance | Admin{% endblock %}
+
+{% block styles %}
+<style>
+    /* 1. Page Specific Styles */
+    .container { 
+        max-width: 1000px; 
+        margin: auto; 
+        background: white; 
+        padding: 30px; 
+        border-radius: 12px; 
+        border-top: 6px solid #4A148C;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th { background: #4A148C; color: white; padding: 12px; text-align: left; border-radius: 5px 5px 0 0; }
+    td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+    
+    .btn { padding: 8px 15px; border-radius: 4px; text-decoration: none; color: white; font-weight: bold; font-size: 13px; transition: 0.2s; display: inline-block;}
+    .btn-approve { background: #2E7D32; }
+    .btn-approve:hover { background: #1B5E20; transform: translateY(-2px); }
+    
+    .btn-reject { background: #C62828; margin-left: 10px; }
+    .btn-reject:hover { background: #B71C1C; transform: translateY(-2px); }
+
+    .role-badge {
+        background: #E1BEE7; color: #4A148C; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;
+    }
+
+    /* 2. CRITICAL: Hide Chatbot on this page only */
+    .fab-btn, .bot-window {
+        display: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+            <h2 style="color:#4A148C; margin:0;">🛡️ Staff Maintenance</h2>
+            <span style="background:#FFF3E0; color:#E65100; padding:5px 10px; border-radius:5px; font-size:12px; border:1px solid #FFE0B2;">
+                Admin Access Only
+            </span>
+        </div>
+
+        {% if pending_users %}
+        <table>
+            <thead>
+                <tr>
+                    <th width="25%">Name</th>
+                    <th width="15%">Role</th>
+                    <th width="30%">Contact</th>
+                    <th width="30%">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in pending_users %}
+                <tr>
+                    <td style="font-weight:600; color:#333;">{{ user.name }}</td>
+                    <td><span class="role-badge">{{ user.role }}</span></td>
+                    <td style="font-size:13px; color:#555;">
+                        <i class="fas fa-envelope"></i> {{ user.email }} <br> 
+                        <i class="fas fa-phone"></i> {{ user.phone }}
+                    </td>
+                    <td>
+                        <a href="/admin/approve/{{ user.pharmacist_id }}" class="btn btn-approve">
+                            <i class="fas fa-check"></i> Approve
+                        </a>
+                        <a href="/admin/reject/{{ user.pharmacist_id }}" class="btn btn-reject">
+                            <i class="fas fa-times"></i> Reject
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <div style="text-align:center; padding: 40px; color:#888;">
+                <div style="font-size: 40px; margin-bottom: 10px;"></div>
+                <p>All caught up! No pending staff requests.</p>
+            </div>
+        {% endif %}
+
+        <br>
+        <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+            <a href="/dashboard" style="text-decoration:none; color:#4A148C; font-weight:bold; font-size: 14px;">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,8 @@
+Flask 
+psycopg2-binary 
+pymongo 
+nltk 
+scikit-learn 
+pandas
+matplotlib 
+seaborn 

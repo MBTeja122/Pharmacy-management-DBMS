@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | PharmaTrust</title>
+
+    <style>
+        /* --- THEME: TRUST & PROTECTION (Royal Purple) --- */
+        :root {
+            --primary-deep: #4A148C;      /* Deep Royal Purple */
+            --primary-light: #7B1FA2;     /* Violet */
+            --bg-canvas: #F3E5F5;         /* Very Light Purple Grey */
+            --card-surface: #FFFFFF;
+            --text-main: #2E1A47;
+            --input-border: #D1C4E9;
+            --success-bg: #E8F5E9;
+            --success-text: #2E7D32;
+            --error-bg: #FFEBEE;
+            --error-text: #C62828;
+        }
+
+        @keyframes cardLoad {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+        body {
+            height: 100vh;
+            display: flex;
+            background-color: var(--bg-canvas);
+            justify-content: center;
+            align-items: center;
+            background-image: radial-gradient(#D1C4E9 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--card-surface);
+            width: 100%;
+            max-width: 480px;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(74, 20, 140, 0.2);
+            border-top: 6px solid var(--primary-light);
+            animation: cardLoad 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .title {
+            font-family: 'Georgia', serif;
+            text-align: center;
+            color: var(--primary-deep);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+        
+        .alert-box {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            text-align: center;
+            border: 1px solid transparent;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .alert-success { background-color: var(--success-bg); color: var(--success-text); border-color: #C8E6C9; }
+        .alert-error { background-color: var(--error-bg); color: var(--error-text); border-color: #FFCDD2; }
+        
+        .form-group { position: relative; margin-bottom: 20px; }
+
+        label {
+            position: absolute; left: 15px; top: 15px;
+            color: #888; font-size: 15px; transition: 0.3s;
+            pointer-events: none; background: transparent;
+        }
+
+        input, select {
+            width: 100%; padding: 14px;
+            border: 2px solid var(--input-border);
+            border-radius: 8px; font-size: 15px;
+            color: var(--text-main); background: #FAFAFA;
+            transition: 0.3s;
+        }
+        
+        input:focus, select:focus, 
+        input:not(:placeholder-shown), select:valid {
+            border-color: var(--primary-light);
+            background: #FFF;
+            box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.1);
+            outline: none;
+        }
+
+        /* Error state */
+        input.input-error {
+            border-color: var(--error-text) !important;
+            background-color: #FFF5F5 !important;
+        }
+        
+        .validation-msg {
+            display: none; /* Hidden by default */
+            color: var(--error-text);
+            font-size: 12px;
+            margin-top: 5px;
+            font-weight: bold;
+            padding-left: 5px;
+        }
+
+        input:focus + label, select:focus + label,
+        input:not(:placeholder-shown) + label, select:valid + label {
+            top: -10px; left: 10px; font-size: 12px;
+            color: var(--primary-light); font-weight: bold;
+            background: var(--card-surface); padding: 0 5px;
+        }
+        
+        input::placeholder { color: transparent; }
+
+        .create-btn {
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, var(--primary-deep), var(--primary-light));
+            color: white; border: none; border-radius: 8px;
+            font-size: 16px; font-weight: bold; text-transform: uppercase;
+            cursor: pointer; margin-top: 10px; transition: 0.3s;
+        }
+
+        .create-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(74, 20, 140, 0.3); }
+
+        .create-btn:disabled {
+            background: #ccc; cursor: not-allowed; transform: none; box-shadow: none;
+        }
+
+        .back-link {
+            display: block; margin-top: 25px; text-align: center;
+            text-decoration: none; color: var(--text-main); font-weight: 600;
+        }
+        .back-link:hover { color: var(--primary-light); text-decoration: underline; }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <div class="title">Staff Registration</div>
+
+        {% if message %}
+        <div class="alert-box {% if error %}alert-error{% else %}alert-success{% endif %}">
+            <strong style="display:block; font-size:16px; margin-bottom:5px;">
+                {% if error %} ⚠️ Registration Failed {% else %} ✅ Request Submitted {% endif %}
+            </strong>
+            {{ message }}
+        </div>
+        {% endif %}
+
+        <form action="/create_account" method="POST" id="signupForm">
+
+            <div class="form-group">
+                <input type="text" name="name" id="name" placeholder=" " required>
+                <label for="name">Full Name</label>
+            </div>
+
+            <div class="form-group">
+                <input type="email" name="email" id="email" placeholder=" " >
+                <label for="email">Email Address</label>
+                <div class="validation-msg" id="emailError">⚠️ Please enter a valid email address</div>
+            </div>
+
+            <div class="form-group">
+                <input type="number" name="phone" id="phone" placeholder=" " required>
+                <label for="phone">Phone Number</label>
+                <div class="validation-msg" id="phoneError">⚠️ Phone number must be exactly 10 digits</div>
+            </div>
+
+            <div class="form-group">
+                <select name="role" id="role" required>
+                    <option value="" disabled selected></option>
+                    <option value="Admin">Admin</option>
+                    <option value="Pharmacist">Employee</option>
+                </select>
+                <label for="role">Role Requested</label>
+            </div>
+
+            <div class="form-group">
+                <input type="password" name="password" id="password" placeholder=" " required>
+                <label for="password">Create Password</label>
+            </div>
+
+            <div class="form-group">
+                <input type="password" name="confirm_password" id="confirm_password" placeholder=" " required>
+                <label for="confirm_password">Confirm Password</label>
+                <div class="validation-msg" id="passwordError">⚠️ Passwords do not match</div>
+            </div>
+
+            <button type="submit" class="create-btn" id="submitBtn">Submit for Approval</button>
+        </form>
+
+        <a href="/" class="back-link">← Return to Login</a>
+    </div>
+
+    <script>
+        // Select all elements
+        const passwordInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirm_password');
+        const passwordError = document.getElementById('passwordError');
+        
+        const phoneInput = document.getElementById('phone');
+        const phoneError = document.getElementById('phoneError');
+        
+        const emailInput = document.getElementById('email');
+        const emailError = document.getElementById('emailError');
+        
+        const submitBtn = document.getElementById('submitBtn');
+
+        // --- 1. Main Check Function ---
+        function checkFormValidity() {
+            // Disable button if ANY input-error class exists on the page
+            const hasErrors = document.querySelectorAll('.input-error').length > 0;
+            submitBtn.disabled = hasErrors;
+        }
+
+        // --- 2. Password Validation ---
+        function validatePassword() {
+            const pass = passwordInput.value;
+            const confirm = confirmInput.value;
+
+            if (confirm.length > 0) {
+                if (pass !== confirm) {
+                    confirmInput.classList.add('input-error');
+                    passwordError.style.display = 'block';
+                } else {
+                    confirmInput.classList.remove('input-error');
+                    passwordError.style.display = 'none';
+                }
+            } else {
+                confirmInput.classList.remove('input-error');
+                passwordError.style.display = 'none';
+            }
+            checkFormValidity();
+        }
+
+        // --- 3. Phone Validation (10 Digits) ---
+        function validatePhone() {
+            const phone = phoneInput.value;
+            const isValid = /^\d{10}$/.test(phone);
+
+            if (phone.length > 0) {
+                if (!isValid) {
+                    phoneInput.classList.add('input-error');
+                    phoneError.style.display = 'block';
+                } else {
+                    phoneInput.classList.remove('input-error');
+                    phoneError.style.display = 'none';
+                }
+            } else {
+                phoneInput.classList.remove('input-error');
+                phoneError.style.display = 'none';
+            }
+            checkFormValidity();
+        }
+
+        // --- 4. Email Validation (Regex) ---
+        function validateEmail() {
+            const email = emailInput.value;
+            // Standard Regex for Email: something@something.domain
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (email.length > 0) {
+                if (!emailRegex.test(email)) {
+                    emailInput.classList.add('input-error');
+                    emailError.style.display = 'block';
+                } else {
+                    emailInput.classList.remove('input-error');
+                    emailError.style.display = 'none';
+                }
+            } else {
+                // If empty, reset styles (email is usually optional, but if typed it must be valid)
+                // Note: If you want email required, add 'required' attribute in HTML tag
+                emailInput.classList.remove('input-error');
+                emailError.style.display = 'none';
+            }
+            checkFormValidity();
+        }
+
+        // Listeners
+        confirmInput.addEventListener('input', validatePassword);
+        passwordInput.addEventListener('input', validatePassword);
+        phoneInput.addEventListener('input', validatePhone);
+        emailInput.addEventListener('input', validateEmail);
+    </script>
+
+</body>
+</html>

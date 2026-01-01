@@ -1,0 +1,255 @@
+{% extends "layout.html" %}
+
+{% block title %}Medicine Inventory | PharmaTrust{% endblock %}
+
+{% block styles %}
+<style>
+    /* --- THEME: TRUST & PROTECTION (Royal Purple) --- */
+    :root {
+        --primary-deep: #4A148C;      /* Deep Royal Purple */
+        --primary-light: #7B1FA2;     /* Violet */
+        --accent-glow: #E1BEE7;       /* Soft Lavender */
+        --card-surface: #FFFFFF;
+        --text-main: #2E1A47;
+        --success: #2E7D32;
+        --danger: #C62828;
+        --warning: #F9A825;
+        --shadow-soft: 0 4px 15px rgba(74, 20, 140, 0.15);
+    }
+
+    /* Container adjustments for Layout integration */
+    .inventory-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* --- HEADER --- */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .page-title {
+        font-family: 'Georgia', serif;
+        font-size: 32px;
+        color: var(--primary-deep);
+        font-weight: 700;
+    }
+
+    .actions {
+        display: flex;
+        gap: 15px;
+    }
+
+    .btn {
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background: var(--primary-deep);
+        color: white;
+        box-shadow: 0 4px 10px rgba(74, 20, 140, 0.3);
+    }
+    .btn-primary:hover { background: var(--primary-light); transform: translateY(-2px); }
+
+    .btn-outline {
+        border: 2px solid var(--primary-deep);
+        color: var(--primary-deep);
+    }
+    .btn-outline:hover { background: var(--primary-deep); color: white; }
+
+    /* --- SEARCH BAR --- */
+    .search-bar {
+        width: 100%;
+        margin-bottom: 20px;
+        position: relative;
+    }
+    .search-input {
+        width: 100%;
+        padding: 15px 20px;
+        border: 1px solid #D1C4E9;
+        border-radius: 12px;
+        font-size: 16px;
+        box-shadow: var(--shadow-soft);
+        outline: none;
+    }
+    .search-input:focus { border-color: var(--primary-light); }
+
+    /* --- TABLE CARD --- */
+    .table-card {
+        background: var(--card-surface);
+        border-radius: 16px;
+        box-shadow: var(--shadow-soft);
+        overflow: hidden;
+        border-top: 5px solid var(--primary-light);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    th {
+        background: var(--primary-deep);
+        color: white;
+        padding: 18px;
+        text-align: left;
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+    }
+
+    td {
+        padding: 15px 18px;
+        border-bottom: 1px solid #F0F0F0;
+        vertical-align: middle;
+        color: #444;
+    }
+
+    tr:hover { background-color: #FAFAFA; }
+
+    /* Status Badges */
+    .badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .badge-ok { background: #E8F5E9; color: var(--success); }
+    .badge-low { background: #FFEBEE; color: var(--danger); }
+    
+    .low-stock-row { background-color: #FFF8E1 !important; } /* Highlight row slightly */
+
+    /* Action Buttons */
+    .action-link {
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 12px;
+        margin-right: 10px;
+        padding: 5px 10px;
+        border-radius: 4px;
+        transition: 0.2s;
+    }
+    .edit-link { color: var(--primary-deep); background: var(--accent-glow); }
+    .edit-link:hover { background: var(--primary-light); color: white; }
+    
+    .delete-link { color: var(--danger); background: #FFEBEE; }
+    .delete-link:hover { background: var(--danger); color: white; }
+
+    small { display: block; color: #888; margin-top: 2px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="inventory-container">
+        
+        <div class="page-header">
+            <div class="page-title">📦 Inventory Master</div>
+            <div class="actions">
+                <a href="/medicines/add" class="btn btn-primary">+ Add Medicine</a>
+            </div>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchBox" placeholder="🔍 Search by Name, Brand, or Location..." onkeyup="filterTable()">
+        </div>
+
+        <div class="table-card">
+            <table id="medicineTable">
+                <thead>
+                    <tr>
+                        <th width="20%">Medicine Name</th>
+                        <th width="12%">Type / Form</th>
+                        <th width="10%">Batch No</th>
+                        <th width="10%">Expiry</th>
+                        <th width="8%">Stock</th>
+                        <th width="10%">MRP</th>
+                        <th width="15%">Supplier</th>
+                        <th width="10%">Location</th>
+                        <th width="5%">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in medicines %}
+                    <tr class="{% if m.quantity <= m.low_stock_threshold %}low-stock-row{% endif %}">
+                        <td>
+                            <strong style="color:var(--primary-deep);">{{ m.brand_name }}</strong>
+                            <small>{{ m.generic_name }}</small>
+                        </td>
+                        <td>
+                            {{ m.form }}
+                            <small>{{ m.strength }}</small>
+                        </td>
+                        <td>{{ m.batch_no }}</td>
+                        <td style="{% if m.quantity <= m.low_stock_threshold %}color:var(--danger); font-weight:bold;{% endif %}">
+                            {{ m.expiry_date }}
+                        </td>
+                        <td>
+                            {% if m.quantity <= m.low_stock_threshold %}
+                                <span class="badge badge-low">LOW: {{ m.quantity }}</span>
+                            {% else %}
+                                <span class="badge badge-ok">{{ m.quantity }}</span>
+                            {% endif %}
+                        </td>
+                        <td>₹{{ m.mrp }}</td>
+                        <td>
+                            {{ m.supplier_name or 'Unknown' }}
+                        </td>
+                        <td>{{ m.location or '-' }}</td>
+                        <td style="white-space: nowrap;">
+                            <a href="/medicines/edit/{{ m.medicine_id }}" class="action-link edit-link">✎</a>
+                            <a href="/medicines/delete/{{ m.medicine_id }}" class="action-link delete-link" onclick="return confirm('Delete this medicine?')">✕</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" style="text-align:center; padding: 40px; color:#999;">
+                            No medicines found. Click "Add Medicine" to start.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        function filterTable() {
+            let input = document.getElementById("searchBox");
+            let filter = input.value.toUpperCase();
+            let table = document.getElementById("medicineTable");
+            let tr = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < tr.length; i++) {
+                let tdName = tr[i].getElementsByTagName("td")[0]; // Brand Name column
+                let tdLoc = tr[i].getElementsByTagName("td")[7];  // Location column
+                
+                if (tdName || tdLoc) {
+                    let txtValueName = tdName.textContent || tdName.innerText;
+                    let txtValueLoc = tdLoc.textContent || tdLoc.innerText;
+                    
+                    if (txtValueName.toUpperCase().indexOf(filter) > -1 || txtValueLoc.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+
+{% endblock %}

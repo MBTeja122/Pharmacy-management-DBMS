@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHARMA TRUST - SYSTEM ACCESS</title>
+
+    <style>
+        /* ROYAL PURPLE PALETTE */
+        :root {
+            --primary-deep: #4A148C;      /* Deep Purple */
+            --primary-light: #7B1FA2;     /* Violet */
+            --accent-glow: #E1BEE7;       /* Lavender */
+            --bg-canvas: #F3E5F5;
+            --card-surface: #FFFFFF;
+            --text-main: #2E1A47;
+            --error-red: #D32F2F;
+            --error-bg: #FFEBEE;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes letterPop { 
+            0% { opacity: 0; transform: translateY(20px) rotate(-10deg); } 
+            60% { opacity: 1; transform: translateY(-5px) rotate(5deg); } 
+            100% { opacity: 1; transform: translateY(0) rotate(0deg); } 
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+        body {
+            height: 100vh;
+            display: flex;
+            background-color: var(--bg-canvas);
+            overflow: hidden;
+        }
+
+        /* --- LEFT SECTION --- */
+        .left-section {
+            width: 50%;
+            background: linear-gradient(135deg, var(--primary-deep), var(--primary-light));
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            position: relative;
+            box-shadow: 6px 0 20px rgba(0,0,0,0.2);
+            animation: slideInLeft 1s ease-out forwards;
+        }
+
+        .left-section::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px; opacity: 0.5;
+        }
+
+        .left-section > * { position: relative; z-index: 1; }
+        
+        .welcome-title {
+            font-family: 'Georgia', serif;
+            font-size: 52px; font-weight: 700;
+            text-align: center; letter-spacing: 5px;
+            color: var(--accent-glow); margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(225, 190, 231, 0.5);
+        }
+        
+        .welcome-title span { display: inline-block; opacity: 0; animation: letterPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .welcome-title span:nth-child(1) { animation-delay: 0.3s; }
+        .welcome-title span:nth-child(2) { animation-delay: 0.35s; }
+        .welcome-title span:nth-child(3) { animation-delay: 0.4s; }
+        .welcome-title span:nth-child(4) { animation-delay: 0.45s; }
+        .welcome-title span:nth-child(5) { animation-delay: 0.5s; }
+        .welcome-title span:nth-child(6) { animation-delay: 0.55s; }
+        .welcome-title span:nth-child(7) { animation-delay: 0.6s; }
+        .welcome-title span:nth-child(8) { animation-delay: 0.65s; }
+        
+        .welcome-subtitle { font-size: 20px; letter-spacing: 2px; color: #DDD; margin-bottom: 40px; text-transform: uppercase; }
+        .welcome-text {
+            font-family: "Georgia", serif; font-style: italic;
+            font-size: 22px; text-align: center; width: 80%; line-height: 1.6;
+            margin-bottom: 40px; opacity: 0;
+            animation: fadeIn 1s 1s ease-out forwards;
+        }
+        
+        .create-btn {
+            padding: 16px 50px;
+            background: var(--accent-glow); color: var(--primary-deep);
+            border: none; border-radius: 50px; text-decoration: none;
+            font-weight: 700; font-size: 16px; text-transform: uppercase;
+            transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            animation: fadeIn 1s 1.4s forwards; opacity: 0;
+        }
+        .create-btn:hover { background: white; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+
+        /* --- RIGHT SECTION --- */
+        .right-section {
+            width: 50%; padding: 20px;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .employee-list-container {
+            background: var(--card-surface);
+            width: 85%; max-height: 90%;
+            border-radius: 16px; padding: 40px;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border-top: 6px solid var(--primary-light);
+            opacity: 0; animation: fadeIn 1s 0.5s ease-out forwards;
+        }
+
+        h3 {
+            text-align: center; color: var(--primary-deep);
+            margin-bottom: 30px; font-size: 24px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px;
+            border-bottom: 2px solid #F0F0F0; padding-bottom: 15px;
+        }
+
+        .employee-item {
+            padding: 15px; background: #F9F9F9;
+            color: var(--text-main); margin-bottom: 12px;
+            border-radius: 8px; cursor: pointer; font-weight: 600;
+            transition: 0.2s; border-left: 5px solid #DDD;
+        }
+        .employee-item:hover {
+            background: #F3E5F5; border-left-color: var(--primary-light);
+            transform: translateX(5px);
+        }
+
+        .password-box {
+            margin-top: 15px; padding-top: 15px;
+            border-top: 1px dashed #DDD;
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        .password-box input {
+            width: 100%; padding: 12px; border: 1px solid #CCC;
+            border-radius: 6px; margin-bottom: 10px; font-size: 16px;
+        }
+        .password-box input:focus { border-color: var(--primary-light); outline: none; }
+
+        .login-btn {
+            width: 100%; padding: 12px;
+            background: var(--primary-deep); color: white;
+            border: none; border-radius: 6px; font-weight: 700;
+            cursor: pointer; transition: 0.2s; text-transform: uppercase;
+        }
+        .login-btn:hover { background: var(--primary-light); }
+
+        /* --- ERROR MESSAGE --- */
+        .error-message {
+            display: none;
+            background-color: var(--error-bg);
+            color: var(--error-red);
+            font-size: 14px;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid #FFCDD2;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            body { flex-direction: column; overflow-y: auto; }
+            .left-section, .right-section { width: 100%; min-height: 50vh; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="left-section">
+        <div class="welcome-title">
+            <span>P</span><span>H</span><span>A</span><span>R</span><span>M</span><span>A</span>
+            <span style="color:white;">T</span><span>R</span><span>U</span><span>S</span><span>T</span>
+        </div>
+        <div class="welcome-subtitle">Secure & Reliable Care</div>
+        <div class="welcome-text">
+            "Medicine cures the body, but trust cures the mind."<br>
+            Authorized Personnel Access Terminal.
+        </div>
+        <a href="/create_account" class="create-btn">Request Access</a>
+    </div>
+
+    <div class="right-section">
+        <div class="employee-list-container">
+            <h3>Select Operator</h3>
+
+            {% for emp in employees %}
+            <div class="employee-item" id="emp-card-{{emp.pharmacist_id}}" onclick="showPasswordBox('{{emp.pharmacist_id}}')">
+                <span style="font-size:16px;">{{ emp.name }}</span>
+                <div style="font-size:12px; color:#888; margin-top:2px;">ID: <strong>{{ emp.pharmacist_id }}</strong></div>
+                
+                <div id="pw-box-{{emp.pharmacist_id}}" class="password-box" style="display:none;">
+                    
+                    <div id="error-msg-{{emp.pharmacist_id}}" class="error-message">
+                        ⚠️ Please enter the correct password
+                    </div>
+
+                    <form method="POST" action="/login" onsubmit="saveLastAttempt('{{emp.pharmacist_id}}')">
+                        <input type="hidden" name="employee_id" value="{{emp.pharmacist_id}}">
+                        <input type="password" name="password" placeholder="Enter Password" required autocomplete="off">
+                        <button class="login-btn" type="submit">Unlock Terminal</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        // 1. Show Password Box
+        function showPasswordBox(id) {
+            document.querySelectorAll('.password-box').forEach(box => box.style.display = 'none');
+            document.querySelectorAll('.error-message').forEach(msg => msg.style.display = 'none');
+            
+            const selectedBox = document.getElementById("pw-box-" + id);
+            if (selectedBox) {
+                selectedBox.style.display = "block";
+                const input = selectedBox.querySelector('input[type="password"]');
+                if(input) input.focus();
+            }
+        }
+
+        // 2. Save Selection
+        function saveLastAttempt(id) {
+            localStorage.setItem('last_attempt_id', id);
+        }
+
+        // 3. Handle Error (Updated for Same-Page Rendering)
+        window.onload = function() 
+        {
+            // Check if Flask sent the error flag (Rendered by Jinja)
+            const hasError = {{ 'true' if login_error else 'false' }};
+            
+            // Check LocalStorage for the last user ID
+            const lastId = localStorage.getItem('last_attempt_id');
+
+            if (hasError && lastId) {
+                // Re-open the box
+                showPasswordBox(lastId);
+                
+                // Show the specific error message
+                const errorDiv = document.getElementById("error-msg-" + lastId);
+                if (errorDiv) {
+                    errorDiv.style.display = "block";
+                    // Change text to be specific
+                    errorDiv.innerHTML = "⚠️ Please enter the correct password";
+                    
+                    // Shake Animation
+                    const card = document.getElementById("emp-card-" + lastId);
+                    card.style.animation = "shake 0.5s";
+                }
+            }
+        };
+    </script>
+
+</body>
+</html>

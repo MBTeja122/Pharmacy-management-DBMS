@@ -1,0 +1,232 @@
+{% extends "layout.html" %}
+
+{% block title %}Supplier Management | PharmaTrust{% endblock %}
+
+{% block styles %}
+<style>
+    /* --- Page Specific Styles --- */
+    :root {
+        --primary-deep: #4A148C;
+        --primary-light: #7B1FA2;
+        --accent-glow: #E1BEE7;
+        --card-surface: #FFFFFF;
+        --shadow-soft: 0 4px 15px rgba(74, 20, 140, 0.15);
+    }
+
+    /* Container */
+    .supplier-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Header */
+    .page-header {
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
+    }
+    .page-title {
+        font-family: 'Georgia', serif; font-size: 32px; color: var(--primary-deep); font-weight: 700;
+    }
+    .back-btn {
+        text-decoration: none; color: var(--primary-deep); font-weight: 600; padding: 10px 20px;
+        border: 2px solid var(--primary-deep); border-radius: 8px; transition: 0.3s;
+    }
+    .back-btn:hover { background: var(--primary-deep); color: white; }
+
+    /* Add Form Card */
+    .add-card {
+        background: var(--card-surface); padding: 25px; border-radius: 16px;
+        box-shadow: var(--shadow-soft); border-top: 5px solid var(--primary-light); margin-bottom: 30px;
+    }
+    .add-card h3 { margin-bottom: 20px; color: var(--primary-light); }
+
+    .form-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;
+    }
+
+    /* Form Inputs */
+    input {
+        width: 100%; padding: 12px; border: 1px solid #D1C4E9; border-radius: 6px;
+        font-size: 14px; background: #FAFAFA; color: #333;
+    }
+    input:focus {
+        outline: none; border-color: var(--primary-light); background: #FFF;
+        box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.1);
+    }
+
+    /* Buttons */
+    .btn-add {
+        background: var(--primary-deep); color: white; border: none; padding: 12px 25px;
+        border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; height: 45px; width: 100%;
+    }
+    .btn-add:hover { background: var(--primary-light); transform: translateY(-2px); }
+
+    .btn-delete {
+        background: #FFEBEE; color: #C62828; border: none; padding: 8px 12px;
+        border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s;
+    }
+    .btn-delete:hover { background: #C62828; color: white; }
+
+    /* Table Styling */
+    .table-container {
+        background: var(--card-surface); border-radius: 16px; box-shadow: var(--shadow-soft); overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 15px; }
+    th { background: var(--primary-deep); color: white; padding: 18px; text-align: left; font-weight: 600; }
+    td { padding: 15px 18px; border-bottom: 1px solid #F0F0F0; color: #555; vertical-align: middle; }
+    
+    /* Editable Cells */
+    td[contenteditable="true"] { cursor: text; transition: background 0.2s; }
+    td[contenteditable="true"]:hover { background: #F3E5F5; }
+    td[contenteditable="true"]:focus { background: #FFF; outline: 2px solid var(--primary-light); color: black; }
+
+    .badge-id {
+        background: var(--accent-glow); color: var(--primary-deep); padding: 4px 8px;
+        border-radius: 4px; font-size: 12px; font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="supplier-container">
+        <div class="add-card">
+            <h3>Register New Partner</h3>
+            <div class="form-grid">
+                <div>
+                    <label style="font-size:12px; color:#666; font-weight:bold;">Company Name</label>
+                    <input type="text" id="name" placeholder="e.g. Cipla Ltd">
+                </div>
+                <div>
+                    <label style="font-size:12px; color:#666; font-weight:bold;">Contact Person</label>
+                    <input type="text" id="contact_person" placeholder="Manager Name">
+                </div>
+                <div>
+                    <label style="font-size:12px; color:#666; font-weight:bold;">Phone</label>
+                    <input type="text" id="phone" placeholder="98765...">
+                </div>
+                <div>
+                    <label style="font-size:12px; color:#666; font-weight:bold;">Email</label>
+                    <input type="email" id="email" placeholder="contact@cipla.com">
+                </div>
+                <div>
+                    <label style="font-size:12px; color:#666; font-weight:bold;">GST No</label>
+                    <input type="text" id="gst_no" placeholder="29ABCDE...">
+                </div>
+                <div>
+                    <label style="font-size:12px; color:#666; font-weight:bold;">&nbsp;</label>
+                    <button class="btn-add" onclick="addSupplier()">Add Supplier</button>
+                </div>
+            </div>
+            <div style="margin-top:15px;">
+                <label style="font-size:12px; color:#666; font-weight:bold;">Address</label>
+                <input type="text" id="address" placeholder="Full Billing Address">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="5%">ID</th>
+                        <th width="20%">Company Name</th>
+                        <th width="15%">Contact Person</th>
+                        <th width="12%">Phone</th>
+                        <th width="18%">Email</th>
+                        <th width="10%">GST No</th>
+                        <th width="15%">Address</th>
+                        <th width="5%">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in suppliers %}
+                    <tr id="row-{{s.supplier_id}}">
+                        <td><span class="badge-id">#{{ s.supplier_id }}</span></td>
+                        
+                        <td contenteditable="true" onblur="updateSupplier('{{s.supplier_id}}', 'name', this.innerText)">{{ s.name }}</td>
+                        <td contenteditable="true" onblur="updateSupplier('{{s.supplier_id}}', 'contact_person', this.innerText)">{{ s.contact_person }}</td>
+                        <td contenteditable="true" onblur="updateSupplier('{{s.supplier_id}}', 'phone', this.innerText)">{{ s.phone }}</td>
+                        <td contenteditable="true" onblur="updateSupplier('{{s.supplier_id}}', 'email', this.innerText)">{{ s.email }}</td>
+                        <td contenteditable="true" onblur="updateSupplier('{{s.supplier_id}}', 'gst_no', this.innerText)">{{ s.gst_no }}</td>
+                        <td contenteditable="true" onblur="updateSupplier('{{s.supplier_id}}', 'address', this.innerText)">{{ s.address }}</td>
+                        
+                        <td>
+                            <button class="btn-delete" onclick="deleteSupplier('{{s.supplier_id}}')">🗑️</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align:center; padding:30px; color:#999;">No suppliers found. Add one above.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 1. ADD SUPPLIER
+        function addSupplier() {
+            const data = {
+                name: document.getElementById("name").value,
+                contact_person: document.getElementById("contact_person").value,
+                phone: document.getElementById("phone").value,
+                email: document.getElementById("email").value,
+                gst_no: document.getElementById("gst_no").value,
+                address: document.getElementById("address").value
+            };
+
+            if(!data.name || !data.phone) {
+                alert("Company Name and Phone are required!");
+                return;
+            }
+
+            fetch('/suppliers/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(response => {
+                if(response.success) {
+                    location.reload(); 
+                } else {
+                    alert("Error adding supplier: " + (response.error || "Unknown error"));
+                }
+            })
+            .catch(err => console.error(err));
+        }
+
+        // 2. INLINE UPDATE
+        function updateSupplier(id, field, value) {
+            fetch(`/suppliers/update/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ field: field, value: value.trim() })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.error) {
+                    alert("Update failed: " + data.error);
+                } else {
+                    console.log(`Updated ${field}`);
+                }
+            });
+        }
+
+        // 3. DELETE SUPPLIER
+        function deleteSupplier(id) {
+            if(!confirm("Are you sure? This cannot be undone.")) return;
+
+            fetch(`/suppliers/delete/${id}`, { method: 'DELETE' })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    document.getElementById(`row-${id}`).remove();
+                } else {
+                    alert("Could not delete. Supplier might be linked to medicines.");
+                }
+            });
+        }
+    </script>
+
+{% endblock %}

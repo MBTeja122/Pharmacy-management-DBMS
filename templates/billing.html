@@ -1,0 +1,411 @@
+{% extends "layout.html" %}
+
+{% block title %}POS | PHARMA TRUST{% endblock %}
+
+{% block styles %}
+<style>
+    /* --- THEME VARIABLES --- */
+    :root {
+        --primary-deep: #4A148C;
+        --primary-light: #7B1FA2;
+        --bg-canvas: #F3E5F5;
+        --white: #FFFFFF;
+        --text-main: #2E1A47;
+        --success: #2E7D32;
+        --danger: #C62828;
+        --bubble-bg: linear-gradient(135deg, #ffffff 0%, #f3e5f5 100%);
+    }
+
+    /* 1. LAYOUT CONTAINER 
+       Replaces the 'body' flex rules so it fits inside the layout.html structure 
+    */
+    .billing-container {
+        display: flex;
+        gap: 25px;
+        height: 85vh; /* Fit within the viewport */
+        width: 100%;
+    }
+
+    /* BILLING PANEL (Left Side) */
+    .billing-section { 
+        flex: 3; 
+        background: var(--white); 
+        border-radius: 16px; 
+        display: flex; 
+        flex-direction: column; 
+        border-top: 6px solid var(--primary-light); 
+        overflow: hidden; 
+        box-shadow: 0 8px 20px rgba(74, 20, 140, 0.15); 
+    }
+    .section-header { padding: 20px; background: #FAFAFA; border-bottom: 1px solid #EEE; display: flex; justify-content: space-between; align-items: center; }
+    .section-header h2 { color: var(--primary-deep); font-size: 22px; margin: 0; display:flex; align-items:center; gap:10px; }
+
+    /* CUSTOMER BAR */
+    .customer-bar { padding: 15px 20px; display: flex; gap: 15px; align-items: center; border-bottom: 1px dashed #DDD; }
+    .search-wrapper { flex-grow: 1; position: relative; }
+    .pos-input, select { width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 8px; font-size: 14px; outline: none; transition: 0.3s; }
+    .pos-input:focus { border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.1); }
+    
+    .cust-id-badge { 
+        display: none; background: var(--primary-deep); color: white; 
+        padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold;
+        margin-top: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .suggestions-box { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #DDD; z-index: 100; max-height: 200px; overflow-y: auto; border-radius: 0 0 8px 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .suggestion-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #EEE; display: flex; justify-content: space-between; }
+    .suggestion-item:hover { background: #F3E5F5; }
+
+    /* TABLE */
+    .table-wrap { flex-grow: 1; overflow-y: auto; padding: 0 20px; }
+    .pos-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .pos-table th { text-align: left; padding: 12px; color: var(--primary-deep); border-bottom: 2px solid var(--primary-light); font-size:13px; position: sticky; top: 0; background: white; z-index: 10; }
+    .pos-table td { padding: 12px; border-bottom: 1px solid #F0F0F0; font-size:14px; }
+    .btn-remove { color: var(--danger); background: none; border: none; font-size: 18px; cursor: pointer; }
+
+    /* AI BUBBLES SECTION */
+    .ai-section { background: #FFF8E1; padding: 15px 20px; border-top: 1px solid #FFECB3; }
+    .ai-header { font-size: 12px; font-weight: bold; color: #F57F17; text-transform: uppercase; margin-bottom: 8px; }
+    .ai-container { display: flex; flex-wrap: wrap; gap: 10px; align-content: center; }
+    
+    @keyframes float {
+        0% { transform: translateY(0px); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        50% { transform: translateY(-3px); box-shadow: 0 5px 10px rgba(0,0,0,0.15); }
+        100% { transform: translateY(0px); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    }
+
+    .ai-bubble {
+        background: var(--bubble-bg);
+        border: 1px solid #FFD54F;
+        padding: 8px 15px;
+        border-radius: 25px;
+        font-size: 13px;
+        cursor: pointer;
+        display: flex; align-items: center; gap: 6px;
+        animation: float 3s ease-in-out infinite;
+        transition: 0.2s;
+    }
+    .ai-bubble:hover { background: #FFECB3; transform: scale(1.05); animation-play-state: paused; }
+    .ai-tag { font-size: 10px; opacity: 0.7; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 10px; }
+
+    /* SUMMARY PANEL (Right Side) */
+    .summary-section { 
+        flex: 1; 
+        background: var(--white); 
+        border-radius: 16px; 
+        padding: 25px; 
+        display: flex; 
+        flex-direction: column; 
+        justify-content: space-between; 
+        box-shadow: 0 4px 15px rgba(74, 20, 140, 0.15); 
+    }
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; color: #555; }
+    .grand-total { font-size: 32px; font-weight: bold; color: var(--primary-deep); }
+    .btn-checkout { background: var(--primary-deep); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 20px; transition:0.3s; }
+    .btn-checkout:hover { background: var(--primary-light); box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <div id="altModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; justify-content:center; align-items:center;">
+        <div style="background:white; width:500px; border-radius:12px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.3); animation: float 0.3s;">
+            <div style="background:#4A148C; color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:bold; font-size:16px;">🚫 Out of Stock</span>
+                <span onclick="closeAltModal()" style="cursor:pointer; font-size:20px;">&times;</span>
+            </div>
+            
+            <div style="padding:20px;">
+                <p style="color:#444; margin-bottom:10px; font-size:15px;">
+                    <strong id="targetMedName" style="color:#D32F2F;"></strong> is unavailable.
+                </p>
+                <div style="font-size:12px; color:#666; margin-bottom:15px; background:#F3E5F5; padding:8px; border-radius:6px;">
+                    Searching for: <strong id="searchCriteria"></strong>
+                </div>
+                
+                <div id="altList" style="max-height:220px; overflow-y:auto; border:1px solid #EEE; border-radius:8px;">
+                    </div>
+            </div>
+            
+            <div style="background:#F9F9F9; padding:12px 20px; text-align:right; border-top:1px solid #EEE;">
+                <button onclick="closeAltModal()" style="padding:8px 15px; border:none; background:#E0E0E0; border-radius:4px; cursor:pointer; font-weight:bold; color:#555;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="billing-container">
+        
+        <div class="billing-section">
+            <div class="section-header">
+                <h2>🛒 New Transaction</h2>
+                <div style="font-size:13px; color:#888;">{{ session.get('name', 'Operator') }}</div>
+            </div>
+
+            <div class="customer-bar">
+                <div class="search-wrapper">
+                    <input type="text" class="pos-input" id="cust_search" placeholder="Search: Name or Last 5 Digits of Phone" autocomplete="off" oninput="searchCustomer(this.value)">
+                    
+                    <div id="cust_id_display" class="cust-id-badge">ID: <span id="cust_id_val"></span></div>
+                    
+                    <div id="cust_results" class="suggestions-box"></div>
+                    <input type="hidden" id="customer_id">
+                </div>
+                <div>
+                    <small style="color:#888">Loyalty Pts</small><br>
+                    <strong id="loyalty_pts" style="color:var(--primary-light)">0</strong>
+                </div>
+                <a href="/customers/add?next=/sales/billing" style="text-decoration:none; color:var(--primary-deep); font-weight:bold; font-size:14px; background:#F3E5F5; padding:8px 12px; border-radius:8px;">+ NEW</a>
+            </div>
+
+            <div class="table-wrap">
+                <table class="pos-table" id="bill_table">
+                    <thead>
+                        <tr>
+                            <th width="40%">Item / Medicine</th>
+                            <th width="15%">Stock</th>
+                            <th width="15%">Price</th>
+                            <th width="15%">Qty</th>
+                            <th width="10%">Total</th>
+                            <th width="5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button onclick="addRow()" style="margin-top:15px; width:100%; padding:10px; border:2px dashed #DDD; background:none; color:#999; cursor:pointer;">+ Add Row</button>
+            </div>
+
+            <div class="ai-section">
+                <div class="ai-header">✨ AI Suggestions (Based on History)</div>
+                <div class="ai-container" id="recommendations">
+                    <span style="font-size:12px; color:#999;">Select items to unlock suggestions...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-section">
+            <div>
+                <h3 style="color:var(--primary-deep); margin-bottom:20px;">Payment Summary</h3>
+                <div class="summary-row"><span>Subtotal</span><span id="summ_subtotal">₹0.00</span></div>
+                <div class="summary-row"><span>Tax (0%)</span><span>₹0.00</span></div>
+                <div class="summary-row" style="align-items:center;">
+                    <span>Loyalty Discount</span>
+                    <input type="number" id="loyalty_use" value="0" min="0" style="width:80px; text-align:right; border:1px solid #CCC; border-radius:4px; padding:4px;" onchange="calculateTotal()">
+                </div>
+                <div style="margin-top:20px; padding-top:20px; border-top:2px dashed #DDD; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="color:#666;">Total Due</span>
+                    <span class="grand-total" id="grand_total">₹0.00</span>
+                </div>
+            </div>
+
+            <form id="billing_form" action="/sales/billing" method="POST">
+                <input type="hidden" name="customer_id" id="hidden_cust">
+                <input type="hidden" name="total_amount" id="hidden_total">
+                <input type="hidden" name="loyalty_points_used" id="hidden_loyalty">
+                
+                <label style="font-size:12px; font-weight:bold; color:#666;">Payment Method</label>
+                <select name="payment_method" style="margin-top:5px;">
+                    <option value="Cash">💵 Cash</option>
+                    <option value="UPI">📱 UPI / QR</option>
+                    <option value="Card">💳 Credit Card</option>
+                </select>
+                <button type="button" onclick="submitBill()" class="btn-checkout">COMPLETE SALE</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let rowCount = 0;
+        document.addEventListener("DOMContentLoaded", () => { addRow(); });
+
+        // --- 1. SMART SEARCH ---
+        function searchCustomer(q) {
+            if(q.length < 2) { document.getElementById("cust_results").innerHTML=""; return; }
+            fetch(`/sales/customer_search/${q}`)
+            .then(res => res.json())
+            .then(data => {
+                let html = "";
+                data.forEach(c => {
+                    html += `<div class="suggestion-item" onclick="selectCustomer('${c.customer_id}', '${c.name}', '${c.phone}', ${c.loyalty_points})">
+                                <div><strong>${c.name}</strong> <span style="font-size:11px; color:#666;">(${c.phone})</span></div>
+                             </div>`;
+                });
+                document.getElementById("cust_results").innerHTML = html;
+            });
+        }
+
+        function selectCustomer(id, name, phone, pts) {
+            document.getElementById("cust_search").value = name;
+            document.getElementById("customer_id").value = id;
+            document.getElementById("loyalty_pts").innerText = pts;
+            document.getElementById("cust_results").innerHTML = "";
+            document.getElementById("loyalty_use").max = pts;
+            
+            document.getElementById("cust_id_val").innerText = id;
+            document.getElementById("cust_id_display").style.display = "inline-block";
+            
+            updateAI();
+        }
+
+        // --- 2. TABLE LOGIC ---
+        function addRow(prefill=null) {
+            rowCount++;
+            const tbody = document.querySelector("#bill_table tbody");
+            const tr = document.createElement("tr");
+            tr.id = `row_${rowCount}`;
+            tr.innerHTML = `
+                <td style="position:relative;">
+                    <input type="text" class="pos-input" placeholder="Search Item..." oninput="searchMedicine(this, ${rowCount})" value="${prefill ? prefill.name : ''}">
+                    <div class="suggestions-box" id="suggest_${rowCount}"></div>
+                    <input type="hidden" class="med-id" value="${prefill ? prefill.id : ''}">
+                </td>
+                <td class="stock-disp">${prefill ? prefill.qty : '-'}</td>
+                <td><input type="number" class="pos-input price" readonly value="${prefill ? prefill.price : 0}" style="background:#EEE;"></td>
+                <td><input type="number" class="pos-input qty" value="1" min="1" onchange="calculateTotal()"></td>
+                <td class="row-total">₹${prefill ? prefill.price : 0}</td>
+                <td><button class="btn-remove" onclick="removeRow(${rowCount})">×</button></td>
+            `;
+            tbody.appendChild(tr);
+            if(prefill) calculateTotal();
+        }
+
+        function searchMedicine(input, id) {
+            if(input.value.length < 2) { document.getElementById(`suggest_${id}`).innerHTML=""; return;}
+            fetch(`/sales/medicine_search/${input.value}`)
+            .then(res=>res.json())
+            .then(data => {
+                let html = "";
+                data.forEach(m => {
+                    let color = m.quantity > 0 ? "var(--success)" : "var(--danger)";
+                    html += `<div class="suggestion-item" onclick="selectMedicine(${id}, '${m.medicine_id}', '${m.name}', ${m.mrp}, ${m.quantity})">
+                                <span>${m.name}</span> <span style="color:${color}; font-size:12px;">Qty: ${m.quantity}</span>
+                             </div>`;
+                });
+                document.getElementById(`suggest_${id}`).innerHTML = html;
+            });
+        }
+
+        function selectMedicine(rowId, medId, name, price, stock) {
+            if(stock <= 0) {
+                fetch('/sales/check_alternates', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ medicine_id: medId })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === 'success' && data.alternates.length > 0) {
+                        showAltModal(rowId, data.target_name, data.criteria, data.alternates);
+                    } else {
+                        alert(`❌ ${name} is out of stock. No substitutes found.`);
+                    }
+                });
+                return;
+            }
+            fillRowData(rowId, medId, name, price, stock);
+        }
+
+        function fillRowData(rowId, medId, name, price, stock) {
+            const row = document.getElementById(`row_${rowId}`);
+            row.querySelector("input[type=text]").value = name;
+            row.querySelector(".med-id").value = medId;
+            row.querySelector(".price").value = price;
+            row.querySelector(".stock-disp").innerText = stock;
+            document.getElementById(`suggest_${rowId}`).innerHTML = "";
+            calculateTotal();
+            updateAI();
+        }
+
+        // --- 3. MODAL LOGIC ---
+        function showAltModal(rowId, targetName, criteria, alternates) {
+            document.getElementById('targetMedName').innerText = targetName;
+            document.getElementById('searchCriteria').innerText = criteria;
+            const list = document.getElementById('altList');
+            list.innerHTML = "";
+
+            alternates.forEach(alt => {
+                let div = document.createElement('div');
+                div.style.cssText = "padding:12px; border-bottom:1px solid #EEE; display:flex; justify-content:space-between; align-items:center; transition:0.2s; cursor:pointer;";
+                div.onmouseover = () => div.style.background = "#F3E5F5";
+                div.onmouseout = () => div.style.background = "white";
+                
+                div.innerHTML = `
+                    <div>
+                        <div style="font-weight:bold; color:#2E1A47;">${alt.brand_name}</div>
+                        <div style="font-size:11px; color:#666;">Loc: ${alt.location} | Generic: ${alt.generic_name}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-weight:bold; color:#2E7D32;">₹${alt.mrp}</div>
+                        <button onclick="fillRowData(${rowId}, '${alt.medicine_id}', '${alt.brand_name}', ${alt.mrp}, ${alt.quantity}); closeAltModal();"
+                            style="margin-top:4px; background:#4A148C; color:white; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:11px;">Select</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+            document.getElementById('altModal').style.display = "flex";
+        }
+        function closeAltModal() { document.getElementById('altModal').style.display = "none"; }
+
+        // --- 4. AI & CALC ---
+        function updateAI() {
+            let custId = document.getElementById("customer_id").value;
+            let cartIds = [];
+            document.querySelectorAll(".med-id").forEach(i => { if(i.value) cartIds.push(i.value) });
+
+            fetch("/sales/recommend", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ customer_id: custId, medicine_ids: cartIds })
+            })
+            .then(res => res.json())
+            .then(data => {
+                let html = "";
+                data.forEach((r, index) => {
+                    let style = `animation-delay: ${index * 0.2}s`;
+                    html += `<div class="ai-bubble" style="${style}" onclick="addRow({id:'${r.medicine_id}', name:'${r.brand_name}', price:${r.mrp}, qty:'In Stock'})">
+                                <span>+ ${r.brand_name}</span>
+                                <span class="ai-tag">${r.reason}</span>
+                             </div>`;
+                });
+                document.getElementById("recommendations").innerHTML = html || "<small style='color:#999'>Start adding items to see predictions...</small>";
+            });
+        }
+
+        function removeRow(id) { document.getElementById(`row_${id}`).remove(); calculateTotal(); updateAI(); }
+        
+        function calculateTotal() {
+            let subtotal = 0;
+            document.querySelectorAll("#bill_table tbody tr").forEach(tr => {
+                let price = parseFloat(tr.querySelector(".price").value) || 0;
+                let qty = parseInt(tr.querySelector(".qty").value) || 0;
+                let total = price * qty;
+                tr.querySelector(".row-total").innerText = "₹" + total.toFixed(2);
+                subtotal += total;
+            });
+            let discount = parseFloat(document.getElementById("loyalty_use").value) || 0;
+            let grand = Math.max(0, subtotal - discount);
+            document.getElementById("summ_subtotal").innerText = "₹" + subtotal.toFixed(2);
+            document.getElementById("grand_total").innerText = "₹" + grand.toFixed(2);
+        }
+
+        function submitBill() {
+            document.getElementById("hidden_cust").value = document.getElementById("customer_id").value;
+            document.getElementById("hidden_total").value = document.getElementById("grand_total").innerText.replace("₹","");
+            document.getElementById("hidden_loyalty").value = document.getElementById("loyalty_use").value;
+            
+            const form = document.getElementById("billing_form");
+            form.querySelectorAll(".item-data").forEach(e => e.remove());
+
+            document.querySelectorAll("#bill_table tbody tr").forEach(tr => {
+                let mid = tr.querySelector(".med-id").value;
+                if(mid) {
+                    let qty = tr.querySelector(".qty").value;
+                    let price = tr.querySelector(".price").value;
+                    let i1 = document.createElement("input"); i1.type="hidden"; i1.name="medicine_id"; i1.value=mid; i1.className="item-data"; form.appendChild(i1);
+                    let i2 = document.createElement("input"); i2.type="hidden"; i2.name="quantity"; i2.value=qty; i2.className="item-data"; form.appendChild(i2);
+                    let i3 = document.createElement("input"); i3.type="hidden"; i3.name="unit_price"; i3.value=price; i3.className="item-data"; form.appendChild(i3);
+                }
+            });
+            form.submit();
+        }
+    </script>
+
+{% endblock %}

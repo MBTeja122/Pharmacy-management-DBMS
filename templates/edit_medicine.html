@@ -1,0 +1,222 @@
+{% extends "layout.html" %}
+
+{% block title %}Edit Medicine | PharmaTrust{% endblock %}
+
+{% block styles %}
+<style>
+    /* --- THEME VARIABLES --- */
+    :root {
+        --primary-deep: #4A148C;
+        --primary-light: #7B1FA2;
+        --bg-canvas: #F3E5F5;
+        --card-surface: #FFFFFF;
+        --text-main: #2E1A47;
+        --text-muted: #6A5B7E;
+        --input-border: #D1C4E9;
+    }
+
+    /* CONTAINER: Wider for 3 Columns */
+    .form-container {
+        background: var(--card-surface);
+        width: 100%;
+        max-width: 1100px; /* Increased width */
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(74, 20, 140, 0.15);
+        border-top: 6px solid var(--primary-light);
+        margin: 0 auto;
+    }
+
+    h2 {
+        text-align: center; color: var(--primary-deep);
+        margin-bottom: 30px; font-family: 'Georgia', serif;
+        font-size: 28px; font-weight: 700;
+    }
+
+    /* GRID SYSTEM: 3 Columns */
+    form {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+        align-items: center;
+    }
+
+    .full-width { grid-column: 1 / -1; }
+
+    /* Input Styling */
+    .form-group { margin: 0; position: relative; }
+
+    input, select, textarea {
+        width: 100%; padding: 14px;
+        border: 2px solid var(--input-border);
+        border-radius: 8px; background: #FAFAFA;
+        font-size: 14px; color: var(--text-main);
+        transition: 0.3s;
+    }
+
+    textarea { height: 80px; resize: none; }
+
+    label {
+        position: absolute; left: 12px; top: -10px;
+        background: var(--card-surface); padding: 0 5px;
+        font-size: 12px; color: var(--primary-light); font-weight: bold;
+    }
+
+    input:focus, textarea:focus, select:focus {
+        border-color: var(--primary-light);
+        background: #FFF;
+        box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.1);
+        outline: none;
+    }
+
+    /* Checkbox */
+    .checkbox-inline {
+        display: flex; align-items: center; 
+        height: 100%; padding-left: 5px;
+    }
+    .checkbox-inline input { width: 22px; height: 22px; accent-color: var(--primary-deep); cursor: pointer; }
+    .checkbox-inline label { position: static; margin-left: 10px; font-size: 15px; color: var(--text-main); font-weight: 500; }
+
+    /* Buttons */
+    .btn-save {
+        width: 100%; background: var(--primary-deep);
+        padding: 15px; color: #fff; border: none;
+        font-size: 16px; font-weight: bold; border-radius: 6px;
+        cursor: pointer; transition: 0.3s; margin-top: 20px;
+    }
+    .btn-save:hover { background: var(--primary-light); transform: translateY(-2px); }
+
+    .back-link {
+        display: block; text-align: center; margin-top: 20px;
+        color: var(--text-main); text-decoration: none; font-weight: 600;
+    }
+    .back-link:hover { text-decoration: underline; color: var(--primary-light); }
+
+    /* 🚫 HIDE CHATBOT ON THIS PAGE */
+    .fab-btn, .bot-window { display: none !important; }
+
+    /* RESPONSIVE */
+    @media(max-width: 1024px) { form { grid-template-columns: 1fr 1fr; } }
+    @media(max-width: 600px) { form { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="form-container">
+        <h2>Edit Medicine Details</h2>
+
+        <form method="POST">
+
+            <div class="form-group">
+                <input type="text" name="brand_name" value="{{ medicine.brand_name }}" required>
+                <label>Brand Name</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="generic_name" value="{{ medicine.generic_name }}" required>
+                <label>Generic Name</label>
+            </div>
+
+            <div class="form-group">
+                <select name="form" required>
+                    <option disabled>Select Form</option>
+                    <option value="Tablet" {% if medicine.form=='Tablet' %}selected{% endif %}>Tablet</option>
+                    <option value="Capsule" {% if medicine.form=='Capsule' %}selected{% endif %}>Capsule</option>
+                    <option value="Syrup" {% if medicine.form=='Syrup' %}selected{% endif %}>Syrup</option>
+                    <option value="Injection" {% if medicine.form=='Injection' %}selected{% endif %}>Injection</option>
+                    <option value="Cream" {% if medicine.form=='Cream' %}selected{% endif %}>Cream</option>
+                    <option value="Inhaler" {% if medicine.form=='Inhaler' %}selected{% endif %}>Inhaler</option>
+                </select>
+                <label>Form</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="strength" value="{{ medicine.strength }}">
+                <label>Strength</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="primary_ingredient" value="{{ medicine.primary_ingredient }}">
+                <label>Primary Ingredient</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="health_condition" value="{{ medicine.health_condition }}">
+                <label>Health Condition</label>
+            </div>
+
+            <div class="form-group full-width">
+                <textarea name="description">{{ medicine.description }}</textarea>
+                <label>Description</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="batch_no" value="{{ medicine.batch_no }}" readonly style="background:#F0F0F0; cursor: not-allowed;">
+                <label>Batch No (Read-Only)</label>
+            </div>
+
+            <div class="form-group">
+                <input type="date" name="mfg_date" value="{{ medicine.mfg_date }}">
+                <label>MFG Date</label>
+            </div>
+
+            <div class="form-group">
+                <input type="date" name="expiry_date" value="{{ medicine.expiry_date }}" required>
+                <label>Expiry Date</label>
+            </div>
+
+            <div class="form-group">
+                <input type="number" name="quantity" value="{{ medicine.quantity }}" required>
+                <label>Quantity</label>
+            </div>
+
+            <div class="form-group">
+                <input type="number" step="0.01" name="cost_price" value="{{ medicine.cost_price }}">
+                <label>Cost Price (₹)</label>
+            </div>
+
+            <div class="form-group">
+                <input type="number" step="0.01" name="mrp" value="{{ medicine.mrp }}" required>
+                <label>MRP (₹)</label>
+            </div>
+
+            <div class="form-group">
+                <select name="supplier_id" required>
+                    <option disabled>Select Supplier</option>
+                    {% for s in suppliers %}
+                        <option value="{{ s.supplier_id }}" {% if s.supplier_id == medicine.supplier_id %}selected{% endif %}>
+                            {{ s.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <label>Supplier</label>
+            </div>
+
+            <div class="form-group">
+                <input type="number" name="reorder_level" value="{{ medicine.reorder_level }}">
+                <label>Reorder Level</label>
+            </div>
+
+            <div class="form-group">
+                <input type="number" name="low_stock_threshold" value="{{ medicine.low_stock_threshold }}">
+                <label>Low Stock Threshold</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="location" value="{{ medicine.location }}" required>
+                <label>Storage Location</label>
+            </div>
+
+            <div class="checkbox-inline">
+                <input type="checkbox" name="is_otc" {% if medicine.is_otc %}checked{% endif %}>
+                <label>OTC / Non-prescription?</label>
+            </div>
+
+            <button type="submit" class="btn-save full-width">Update Medicine Details</button>
+        </form>
+
+        <a href="/medicines" class="back-link">← Cancel & Return</a>
+    </div>
+
+{% endblock %}

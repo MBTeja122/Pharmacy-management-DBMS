@@ -1,0 +1,348 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard | PHARMA TRUST{% endblock %}
+
+{% block styles %}
+<style>
+    /* --- Root & Background --- */
+    :root {
+        --primary-deep: #4A148C;
+        --white-glass: rgba(255, 255, 255, 0.9);
+        --glass-border: 1px solid rgba(255, 255, 255, 0.4);
+        --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.1);
+    }
+
+    body {
+        background: linear-gradient(-45deg, #f3e5f5, #e1bee7, #f8f0fc, #ffffff);
+        background-size: 400% 400%;
+        animation: gradientBG 20s ease infinite;
+    }
+
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* --- Animation Keyframes --- */
+    @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulseGreen {
+        0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(46, 125, 50, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
+    }
+
+    /* --- Layout Container --- */
+    .dashboard-container {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr; /* Left (1.5) Right (1) */
+        gap: 30px;
+        margin-top: 20px;
+        height: 80vh;
+        perspective: 1000px; /* For 3D feel */
+    }
+
+    /* --- 1. Welcome Section (Left) --- */
+    .welcome-card {
+        background: var(--white-glass);
+        backdrop-filter: blur(12px);
+        border: var(--glass-border);
+        border-radius: 24px;
+        padding: 50px;
+        box-shadow: var(--shadow-soft);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        
+        /* Animation */
+        opacity: 0; /* Start hidden */
+        animation: slideInLeft 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        animation-delay: 0.1s;
+    }
+
+    /* Abstract Background Shape */
+    .welcome-card::before {
+        content: "";
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 250px; height: 250px;
+        background: radial-gradient(circle, rgba(74, 20, 140, 0.15) 0%, rgba(255,255,255,0) 70%);
+        border-radius: 50%;
+        z-index: 0;
+    }
+
+    .greeting-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: var(--primary-deep);
+        margin: 0 0 15px 0;
+        letter-spacing: -1.5px;
+        z-index: 1;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .greeting-sub {
+        font-size: 1.3rem;
+        color: #555;
+        margin-bottom: 40px;
+        line-height: 1.6;
+        z-index: 1;
+        max-width: 85%;
+    }
+
+    .date-badge {
+        display: inline-block;
+        background: #EDE7F6;
+        color: var(--primary-deep);
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        align-self: flex-start;
+        margin-bottom: 20px;
+    }
+
+    /* Status Indicator */
+    .status-box {
+        margin-top: auto;
+        padding: 15px 20px;
+        background: rgba(255,255,255,0.6);
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        width: fit-content;
+    }
+    
+    .status-dot {
+        height: 12px; width: 12px;
+        background: #2E7D32;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulseGreen 2s infinite;
+    }
+
+    /* --- 2. Notification Feed (Right) --- */
+    .noti-feed-card {
+        background: var(--white-glass);
+        backdrop-filter: blur(12px);
+        border: var(--glass-border);
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: var(--shadow-soft);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+
+        /* Animation */
+        opacity: 0;
+        animation: slideInRight 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        animation-delay: 0.3s;
+    }
+
+    .feed-header {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid rgba(0,0,0,0.03);
+    }
+
+    .feed-title { 
+        font-size: 1.4rem; font-weight: 700; color: #333; 
+        display: flex; align-items: center; gap: 12px; 
+    }
+
+    .icon-box {
+        background: linear-gradient(135deg, #6A1B9A, #4A148C);
+        color: white; 
+        width: 36px; height: 36px; 
+        display: flex; align-items: center; justify-content: center; 
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(74, 20, 140, 0.3);
+    }
+
+    .feed-list {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    /* Individual Alert Item */
+    .feed-item {
+        background: white;
+        padding: 18px;
+        border-radius: 16px;
+        margin-bottom: 15px;
+        border-left: 6px solid #ddd;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        cursor: pointer;
+        position: relative;
+        
+        /* Staggered Animation Init */
+        opacity: 0;
+        animation: fadeInUp 0.5s ease forwards;
+    }
+
+    /* Hover Physics */
+    .feed-item:hover { 
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    .feed-item.danger { border-left-color: #D32F2F; background: #FFEBEE; }
+    .feed-item.warning { border-left-color: #FFAB00; background: #FFF8E1; }
+    .feed-item.success { border-left-color: #2E7D32; background: #E8F5E9; }
+    .feed-item.info { border-left-color: #2962FF; background: #E3F2FD; }
+
+    .item-msg { font-weight: 700; color: #333; font-size: 1rem; margin-bottom: 6px; }
+    .item-meta { font-size: 0.85rem; color: #666; display: flex; justify-content: space-between; opacity: 0.8; }
+
+    /* Custom Scrollbar */
+    .feed-list::-webkit-scrollbar { width: 6px; }
+    .feed-list::-webkit-scrollbar-track { background: transparent; }
+    .feed-list::-webkit-scrollbar-thumb { background: #CCC; border-radius: 10px; }
+    .feed-list::-webkit-scrollbar-thumb:hover { background: #AAA; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="dashboard-container">
+        
+        <div class="welcome-card">
+            <div class="date-badge" id="currentDate">loading...</div>
+            
+            <h1 class="greeting-title" id="greeting">Welcome Back!</h1>
+            
+            <p class="greeting-sub">
+                Logged in as <b>{{ session.get('name', 'Staff') }}</b> ({{ session.get('role', 'User') }}).<br>
+                The inventory ML models are active and forecasting is up to date.
+            </p>
+
+            <div class="status-box">
+                <span class="status-dot"></span>
+                <div>
+                    <div style="font-weight:bold; color:#2E7D32; font-size:0.9rem;">System Operational</div>
+                    <div style="font-size:0.75rem; color:#666;">Database Connected • AI Online</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="noti-feed-card">
+            <div class="feed-header">
+                <div class="feed-title">
+                    <div class="icon-box"><i class="fas fa-bell"></i></div>
+                    Activity Feed
+                </div>
+                <span id="feed-count" style="background:#D32F2F; color:white; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:bold; display:none; box-shadow:0 4px 10px rgba(211, 47, 47, 0.3);">0 New</span>
+            </div>
+
+            <div id="dashboard-feed" class="feed-list">
+                <div style="text-align:center; color:#999; margin-top:40px;">
+                    <i class="fas fa-circle-notch fa-spin"></i> Checking alerts...
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. Dynamic Greeting & Date
+        function updateTime() {
+            const now = new Date();
+            const hour = now.getHours();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('en-US', options);
+            
+            document.getElementById('currentDate').innerText = dateStr;
+            
+            let greet = "Welcome Back,";
+            if (hour < 12) greet = "Good Morning,";
+            else if (hour < 18) greet = "Good Afternoon,";
+            else greet = "Good Evening,";
+            
+            // Just get first name
+            const fullName = "{{ session.get('name', 'User') }}";
+            const firstName = fullName.split(' ')[0];
+            
+            document.getElementById('greeting').innerText = `${greet} ${firstName}`;
+        }
+        updateTime();
+
+        // 2. Fetch Notifications with Staggered Animation
+        function loadDashboardFeed() {
+            fetch('/notifications/get')
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById("dashboard-feed");
+                const badge = document.getElementById("feed-count");
+
+                // Update Count Badge
+                if(data.count > 0) {
+                    badge.innerText = `${data.count} New`;
+                    badge.style.display = "inline-block";
+                } else {
+                    badge.style.display = "none";
+                }
+
+                // Render List
+                if(data.alerts && data.alerts.length > 0) {
+                    let html = "";
+                    data.alerts.forEach((n, index) => {
+                        let type = n.type || 'info';
+                        let icon = type === 'danger' ? '⚠️' : (type === 'success' ? '🎉' : 'ℹ️');
+                        let time = new Date(n.created_at).toLocaleString([], {hour: '2-digit', minute:'2-digit'});
+                        
+                        // Add staggered animation delay
+                        let delay = index * 0.1; 
+
+                        html += `
+                            <div class="feed-item ${type}" 
+                                 onclick="window.location.href='${n.link}'"
+                                 style="animation-delay: ${delay}s;">
+                                <div class="item-msg">${icon} ${n.message}</div>
+                                <div class="item-meta">
+                                    <span style="font-weight:700; font-size:0.7rem; opacity:0.6;">${type.toUpperCase()}</span>
+                                    <span>${time}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    list.innerHTML = html;
+                } else {
+                    list.innerHTML = `
+                        <div style="text-align:center; padding:50px; color:#BBB;">
+                            <i class="fas fa-check-circle" style="font-size:48px; margin-bottom:15px; color:#EEE;"></i><br>
+                            All caught up! No new alerts.
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => console.log(err));
+        }
+
+        // Load immediately and refresh every 10s
+        loadDashboardFeed();
+        setInterval(loadDashboardFeed, 10000);
+    </script>
+
+{% endblock %}

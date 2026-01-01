@@ -1,0 +1,270 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Medicine | PharmaTrust{% endblock %}
+
+{% block styles %}
+<style>
+    /* --- THEME VARIABLES --- */
+    :root {
+        --primary-deep: #4A148C;
+        --primary-light: #7B1FA2;
+        --bg-canvas: #F3E5F5;
+        --card-surface: #FFFFFF;
+        --text-main: #2E1A47;
+        --text-muted: #6A5B7E;
+        --input-border: #D1C4E9;
+    }
+
+    /* CONTAINER: Wider for 3 Columns */
+    .form-container {
+        background: var(--card-surface);
+        width: 100%;
+        max-width: 1100px; /* Increased width */
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(74, 20, 140, 0.15);
+        border-top: 6px solid var(--primary-light);
+        margin: 0 auto;
+    }
+
+    h2 {
+        font-family: 'Georgia', serif;
+        text-align: center;
+        color: var(--primary-deep);
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 30px;
+    }
+
+    /* GRID SYSTEM: 3 Columns */
+    form {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 3 Equal Columns */
+        gap: 25px; /* Spacing between inputs */
+        align-items: center; /* Align checkboxes properly */
+    }
+
+    /* Helper to span all 3 columns */
+    .full-width { grid-column: 1 / -1; }
+
+    /* Input Styling */
+    .form-group { position: relative; }
+
+    label {
+        position: absolute; left: 15px; top: 15px;
+        color: var(--text-muted); font-size: 14px;
+        transition: 0.2s; pointer-events: none;
+        background: transparent;
+    }
+
+    input, textarea, select {
+        width: 100%; padding: 14px;
+        border: 2px solid var(--input-border);
+        border-radius: 8px; font-size: 14px;
+        color: var(--text-main); background: #FAFAFA;
+        transition: 0.3s;
+    }
+
+    input:focus, textarea:focus, select:focus,
+    input:not(:placeholder-shown), textarea:not(:placeholder-shown), select:valid {
+        border-color: var(--primary-light);
+        background: #FFF;
+        box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.1);
+        outline: none;
+    }
+
+    /* Floating Label Logic */
+    input:focus ~ label, input:not(:placeholder-shown) ~ label,
+    textarea:focus ~ label, textarea:not(:placeholder-shown) ~ label,
+    select:focus ~ label, select:valid ~ label {
+        top: -10px; left: 10px; font-size: 12px;
+        color: var(--primary-light); font-weight: bold;
+        background: var(--card-surface); padding: 0 5px;
+    }
+
+    input::placeholder, textarea::placeholder { color: transparent; }
+
+    /* Checkbox Styling */
+    .checkbox-inline {
+        display: flex; align-items: center; 
+        height: 100%; /* Match height of other inputs */
+        padding-left: 5px;
+    }
+    .checkbox-inline label { position: static; margin-left: 10px; font-size: 15px; color: var(--text-main); font-weight: 500; }
+    .checkbox-inline input { width: 22px; height: 22px; accent-color: var(--primary-deep); cursor: pointer; }
+
+    /* Buttons */
+    .btn-save {
+        background: linear-gradient(135deg, var(--primary-deep), var(--primary-light));
+        color: white; border: none; padding: 16px;
+        border-radius: 8px; font-size: 16px; font-weight: bold;
+        cursor: pointer; transition: 0.3s; margin-top: 20px;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(74, 20, 140, 0.4); }
+
+    .back-link {
+        text-align: center; display: block; margin-top: 20px;
+        color: var(--text-muted); text-decoration: none; font-weight: 600;
+    }
+    .back-link:hover { color: var(--primary-light); }
+
+    datalist { display: none; }
+
+    /* RESPONSIVE BREAKPOINTS */
+    @media(max-width: 1024px) { 
+        form { grid-template-columns: 1fr 1fr; } /* Tablet: 2 Cols */
+    }
+    @media(max-width: 600px) { 
+        form { grid-template-columns: 1fr; } /* Mobile: 1 Col */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="form-container">
+        <h2>Add Stock Entry</h2>
+
+        <form method="POST" action="/medicines/add">
+
+            <div class="form-group">
+                <input type="text" name="brand_name" id="brand_name" list="brand_name_list" placeholder=" " required>
+                <label for="brand_name">Brand Name *</label>
+                <datalist id="brand_name_list"></datalist>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="generic_name" id="generic_name" list="generic_name_list" placeholder=" " required>
+                <label for="generic_name">Generic Name *</label>
+                <datalist id="generic_name_list"></datalist>
+            </div>
+
+            <div class="form-group">
+                <select name="form" id="form" required>
+                    <option value="" disabled selected></option>
+                    <option value="Tablet">Tablet</option>
+                    <option value="Capsule">Capsule</option>
+                    <option value="Syrup">Syrup</option>
+                    <option value="Injection">Injection</option>
+                    <option value="Cream">Cream / Ointment</option>
+                    <option value="Inhaler">Inhaler</option>
+                </select>
+                <label for="form">Form *</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="strength" id="strength" list="strength_list" placeholder=" ">
+                <label for="strength">Strength (e.g. 500mg)</label>
+                <datalist id="strength_list"></datalist>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="primary_ingredient" id="primary_ingredient" list="primary_ing_list" placeholder=" ">
+                <label for="primary_ingredient">Primary Ingredient</label>
+                <datalist id="primary_ing_list"></datalist>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="health_condition" id="health_condition" list="health_condition_list" placeholder=" ">
+                <label for="health_condition">Health Condition</label>
+                <datalist id="health_condition_list"></datalist>
+            </div>
+
+            <div class="form-group full-width">
+                <textarea name="description" id="description" placeholder=" " rows="2"></textarea>
+                <label for="description">Description / Notes</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="batch_no" id="batch_no" value="{{ batch_no }}" readonly style="background: #F0F0F0; cursor: not-allowed;">
+                <label for="batch_no">Batch No (Auto)</label>
+            </div>
+
+            <div class="form-group">
+                <input type="date" name="mfg_date" id="mfg_date">
+                <label for="mfg_date" style="position:static; font-size:12px; color:var(--primary-light); margin-left:5px;">Manufacturing Date</label>
+            </div>
+
+            <div class="form-group">
+                <input type="date" name="expiry_date" id="expiry_date" required>
+                <label for="expiry_date" style="position:static; font-size:12px; color:var(--primary-light); margin-left:5px;">Expiry Date *</label>
+            </div>
+
+            <div class="form-group">
+                <input type="number" name="quantity" id="quantity" placeholder=" " required>
+                <label for="quantity">Quantity (Stock) *</label>
+            </div>
+
+            <div class="form-group">
+                <input type="number" step="0.01" name="cost_price" id="cost_price" placeholder=" ">
+                <label for="cost_price">Cost Price (₹)</label>
+            </div>
+
+            <div class="form-group">
+                <input type="number" step="0.01" name="mrp" id="mrp" placeholder=" " required>
+                <label for="mrp">MRP (₹) *</label>
+            </div>
+
+            <div class="form-group">
+                <select name="supplier_id" id="supplier_id" required>
+                    <option value="" disabled selected></option>
+                    {% for supplier in suppliers %}
+                    <option value="{{ supplier['supplier_id'] }}">{{ supplier['name'] }}</option>
+                    {% endfor %}
+                </select>
+                <label for="supplier_id">Supplier *</label> 
+            </div>
+
+            <div class="form-group">
+                <input type="number" name="reorder_level" id="reorder_level" placeholder=" " value="10">
+                <label for="reorder_level">Reorder Level</label>
+            </div>
+
+            <div class="form-group">
+                <input type="number" name="low_stock_threshold" id="low_stock_threshold" placeholder=" " value="5">
+                <label for="low_stock_threshold">Low Stock Alert</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="location" id="location" placeholder=" " required>
+                <label for="location">Storage Location *</label>
+            </div>
+
+            <div class="form-group checkbox-inline">
+                <input type="checkbox" name="is_otc" id="is_otc">
+                <label for="is_otc">OTC (No Prescription Needed)</label>
+            </div>
+
+            <button type="submit" class="btn-save full-width">Save & Register Stock</button>
+        </form>
+
+        <a href="/medicines" class="back-link">← Return to Inventory</a>
+    </div>
+
+    <script>
+        function attachSuggestion(inputId, category) {
+            const input = document.getElementById(inputId);
+            const datalist = document.getElementById(inputId + "_list");
+            if(!input || !datalist) return;
+            input.addEventListener("input", () => {
+                if (input.value.length < 1) { datalist.innerHTML = ""; return; }
+                fetch(`/medicines/suggest/${category}?query=` + input.value)
+                    .then(res => res.json())
+                    .then(data => {
+                        datalist.innerHTML = "";
+                        data.forEach(text => {
+                            const option = document.createElement("option");
+                            option.value = text;
+                            datalist.appendChild(option);
+                        });
+                    });
+            });
+        }
+        attachSuggestion("generic_name", "generic");
+        attachSuggestion("brand_name", "brand");
+        attachSuggestion("strength", "strength");
+        attachSuggestion("primary_ingredient", "ingredient");
+        attachSuggestion("health_condition", "health");
+    </script>
+
+{% endblock %}

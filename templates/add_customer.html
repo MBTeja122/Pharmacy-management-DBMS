@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Customer | PharmaTrust</title>
+
+    <style>
+        /* --- THEME: TRUST & PROTECTION (Royal Purple) --- */
+        :root {
+            --primary-deep: #4A148C;      /* Deep Royal Purple */
+            --primary-light: #7B1FA2;     /* Vibrant Violet */
+            --accent-glow: #E1BEE7;       /* Soft Lavender */
+            --bg-canvas: #F3E5F5;         /* Very Light Purple Grey */
+            --card-surface: #FFFFFF;
+            --text-main: #2E1A47;         /* Dark Purple/Black text */
+            --text-muted: #6A5B7E;
+            --input-border: #D1C4E9;
+            --shadow-soft: 0 10px 30px rgba(74, 20, 140, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+        body {
+            height: 100vh;
+            display: flex;
+            background-color: var(--bg-canvas);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .form-container {
+            background: var(--card-surface);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-soft);
+            border-top: 6px solid var(--primary-light);
+            animation: formLoad 0.5s ease-out forwards;
+        }
+        
+        @keyframes formLoad {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-family: 'Georgia', serif;
+            text-align: center;
+            color: var(--primary-deep);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- FLOATING LABELS --- */
+        .form-group { position: relative; margin-bottom: 25px; }
+        
+        input, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 16px;
+            color: var(--text-main);
+            background: #FAFAFA;
+            transition: 0.3s;
+        }
+
+        textarea { resize: vertical; min-height: 100px; }
+        
+        label {
+            position: absolute; left: 15px; top: 15px;
+            color: var(--text-muted); font-size: 16px;
+            transition: 0.2s; pointer-events: none;
+            background: transparent;
+        }
+
+        /* Focus States */
+        input:focus, textarea:focus,
+        input:not(:placeholder-shown), textarea:not(:placeholder-shown) {
+            border-color: var(--primary-light);
+            background: #FFF;
+            box-shadow: 0 0 0 4px rgba(123, 31, 162, 0.1);
+        }
+
+        input:focus ~ label, input:not(:placeholder-shown) ~ label,
+        textarea:focus ~ label, textarea:not(:placeholder-shown) ~ label {
+            top: -10px; left: 10px;
+            font-size: 12px; color: var(--primary-light);
+            font-weight: bold; background: var(--card-surface);
+            padding: 0 5px;
+        }
+
+        input::placeholder, textarea::placeholder { color: transparent; }
+
+        /* --- BUTTONS --- */
+        button[type="submit"] {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-deep), var(--primary-light));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(74, 20, 140, 0.3);
+        }
+
+        button[type="submit"]:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 20, 140, 0.4);
+        }
+        
+        .back-link {
+            display: block; margin-top: 20px; text-align: center;
+            text-decoration: none; color: var(--text-muted);
+            font-weight: 600; font-size: 14px; transition: 0.2s;
+        }
+        .back-link:hover { color: var(--primary-light); }
+
+    </style>
+</head>
+
+<body>
+
+<div class="form-container">
+    <h2>New Customer</h2>
+
+    <form method="POST" action="{{ url_for('customers_bp.add_customer', next=request.args.get('next')) }}">
+        
+        <div class="form-group">
+            <input type="text" id="name" name="name" placeholder=" " required>
+            <label for="name">Customer Name *</label>
+        </div>
+
+        <div class="form-group">
+            <input type="text" id="phone" name="phone" placeholder=" ">
+            <label for="phone">Phone</label>
+        </div>
+
+        <div class="form-group">
+            <input type="email" id="email" name="email" placeholder=" ">
+            <label for="email">Email</label>
+        </div>
+
+        <div class="form-group">
+            <textarea id="address" name="address" placeholder=" "></textarea>
+            <label for="address">Address</label>
+        </div>
+
+        <button type="submit">Add Customer</button>
+    </form>
+
+    <a class="back-link" href="{{ request.args.get('next') or url_for('customers_bp.list_customers') }}">← Back</a>
+</div>
+
+</body>
+</html>
