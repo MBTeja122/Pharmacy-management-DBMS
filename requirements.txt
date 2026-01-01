@@ -6,3 +6,5 @@ scikit-learn
 pandas
 matplotlib 
 seaborn 
+spacy
+
