@@ -1,80 +1,158 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, jsonify, send_file, url_for, flash, redirect, current_app
 from pymongo import MongoClient
 import os
+import qrcode
+import uuid
+import socket
+import time
+from io import BytesIO
 from datetime import datetime
 from werkzeug.utils import secure_filename
 
-app = Flask(__name__)
-app.secret_key = "secret_key_for_flash_messages"
+# --- 1. Define Blueprint ---
+prescriptions_bp = Blueprint('prescriptions_bp', __name__)
 
-# --- CONFIGURATION ---
-# 1. Connect to MongoDB
+# --- 2. Database & Config ---
 client = MongoClient("mongodb://localhost:27017/")
 db = client["pharmacy_db"]
 collection = db["prescriptions"]
 
-# 2. Configure Upload Folder
 UPLOAD_FOLDER = 'static/uploads/prescriptions'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True) # Creates folder if it doesn't exist
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-# 3. Allowed Files (Images and PDFs)
+# Note: We use current_app to get the absolute path later
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
+
+active_sessions = {}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# --- ROUTES ---
+# --- 3. Offline Hotspot IP Logic ---
+def get_offline_ip():
+    """Finds the Laptop's Hotspot IP (usually 192.168.137.1)"""
+    try:
+        hostname = socket.gethostname()
+        all_ips = socket.gethostbyname_ex(hostname)[2]
+        
+        # Priority 1: Windows Hotspot Default
+        if "192.168.137.1" in all_ips: return "192.168.137.1"
+        
+        # Priority 2: Any 192.168.x.x (excluding localhost)
+        for ip in all_ips:
+            if ip.startswith("192.168.") and ip != "127.0.0.1": return ip
+            
+        # Priority 3: Fallback to 172.x (Mobile Hotspots)
+        for ip in all_ips:
+            if ip.startswith("172."): return ip
+            
+    except: pass
+    return "192.168.137.1" # Default fallback
 
-@app.route("/", methods=["GET"])
+# ==========================================
+#  PART A: MANUAL UPLOAD ROUTES (Laptop)
+# ==========================================
+
+@prescriptions_bp.route("/upload", methods=["GET"])
 def show_upload_form():
-    """Displays the upload form."""
-    return render_template("upload.html")
+    return render_template("upload_prescription.html")
 
-@app.route("/upload", methods=["POST"])
+@prescriptions_bp.route("/upload_file", methods=["POST"])
 def upload_file():
-    """Handles the file upload and MongoDB insertion."""
-    
-    # 1. Check if file is present
     if 'file' not in request.files:
         flash("No file part", "error")
-        return redirect(url_for('show_upload_form'))
+        return redirect(url_for('prescriptions_bp.show_upload_form'))
     
     file = request.files['file']
     patient_name = request.form.get("patient_name")
     doctor_name = request.form.get("doctor_name")
 
-    # 2. Check if user actually selected a file
     if file.filename == '':
         flash("No selected file", "error")
-        return redirect(url_for('show_upload_form'))
+        return redirect(url_for('prescriptions_bp.show_upload_form'))
 
-    # 3. Validate and Save
     if file and allowed_file(file.filename):
-        # Secure the filename (prevents hacking via filenames)
         filename = secure_filename(f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{file.filename}")
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         
-        # Save file to your hard drive
-        file.save(file_path)
+        # Ensure directory exists using absolute path
+        abs_folder = os.path.join(current_app.root_path, UPLOAD_FOLDER)
+        os.makedirs(abs_folder, exist_ok=True)
+        
+        file.save(os.path.join(abs_folder, filename))
 
-        # 4. Insert Metadata into MongoDB
-        document = {
+        collection.insert_one({
             "patient_name": patient_name,
             "doctor_name": doctor_name,
             "filename": filename,
-            "file_path": file_path, # Path where the file is stored
+            "file_path": os.path.join(UPLOAD_FOLDER, filename),
             "upload_date": datetime.now(),
-            "status": "stored"
-        }
-        collection.insert_one(document)
+            "status": "stored",
+            "source": "manual"
+        })
 
-        flash("✅ Prescription Saved to Database Successfully!", "success")
-        return redirect(url_for('show_upload_form'))
+        flash("✅ Prescription Saved Successfully!", "success")
+        return redirect(url_for('prescriptions_bp.show_upload_form'))
     
-    else:
-        flash("Invalid file type. Only PDF, JPG, PNG allowed.", "error")
-        return redirect(url_for('show_upload_form'))
+    return redirect(url_for('prescriptions_bp.show_upload_form'))
 
-if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+
+# ==========================================
+#  PART B: REMOTE CAMERA ROUTES (Mobile)
+# ==========================================
+
+@prescriptions_bp.route("/remote_upload", methods=["GET"])
+def remote_upload_page():
+    token = str(uuid.uuid4())
+    active_sessions[token] = {'status': 'waiting', 'filename': None}
+
+    local_ip = get_offline_ip()
+    
+    # Must use HTTPS for Camera to work on mobile
+    mobile_url = f"https://{local_ip}:5000/prescriptions/mobile/{token}"
+    
+    print(f"🚀 QR Link: {mobile_url}")
+    return render_template("remote_upload_pc.html", token=token, mobile_url=mobile_url)
+
+@prescriptions_bp.route("/qr_code")
+def generate_qr():
+    url = request.args.get('url')
+    img = qrcode.make(url)
+    buf = BytesIO()
+    img.save(buf)
+    buf.seek(0)
+    return send_file(buf, mimetype='image/png')
+
+@prescriptions_bp.route("/check_status/<token>")
+def check_status(token):
+    session = active_sessions.get(token)
+    if not session: return jsonify({"status": "expired"})
+    if session['status'] == 'done':
+        del active_sessions[token]
+        return jsonify({"status": "done", "filename": session['filename']})
+    return jsonify({"status": "waiting"})
+
+@prescriptions_bp.route("/mobile/<token>", methods=["GET"])
+def mobile_camera_page(token):
+    return render_template("remote_upload_mobile.html", token=token)
+
+@prescriptions_bp.route("/mobile_upload/<token>", methods=["POST"])
+def mobile_upload(token):
+    if token not in active_sessions: return jsonify({"error": "Expired"}), 403
+    file = request.files.get('file')
+    if file and allowed_file(file.filename):
+        filename = secure_filename(f"mobile_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg")
+        
+        abs_folder = os.path.join(current_app.root_path, UPLOAD_FOLDER)
+        os.makedirs(abs_folder, exist_ok=True)
+        file.save(os.path.join(abs_folder, filename))
+        
+        active_sessions[token]['status'] = 'done'
+        active_sessions[token]['filename'] = filename
+        
+        collection.insert_one({
+            "filename": filename,
+            "file_path": os.path.join(UPLOAD_FOLDER, filename),
+            "source": "mobile_camera",
+            "upload_date": datetime.now(),
+            "status": "draft"
+        })
+        return render_template("remote_upload_success.html")
+    return "Invalid File", 400

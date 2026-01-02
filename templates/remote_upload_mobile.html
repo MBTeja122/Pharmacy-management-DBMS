@@ -4,16 +4,56 @@
     <meta charset="viewport" content="width=device-width, initial-scale=1.0">
     <title>Camera Upload</title>
     <style>
-        body { background: #4A148C; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; margin:0;}
-        .btn { background: #E1BEE7; color: #4A148C; padding: 20px 40px; border-radius: 50px; font-size: 22px; font-weight: bold; cursor: pointer; display: inline-block; margin-top: 20px; text-decoration: none;}
+        body { 
+            background: #4A148C; 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            font-family: sans-serif; 
+            margin: 0; 
+            text-align: center;
+        }
+        .btn { 
+            background: #E1BEE7; 
+            color: #4A148C; 
+            padding: 20px 40px; 
+            border-radius: 50px; 
+            font-size: 22px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            display: inline-block; 
+            margin-top: 20px; 
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
     <h1>PharmaCam 📸</h1>
+    <p>Tap below to take a photo</p>
+
     <form action="{{ url_for('prescriptions_bp.mobile_upload', token=token) }}" method="POST" enctype="multipart/form-data" id="uploadForm">
-        <input type="file" name="file" id="camInput" accept="image/*" capture="environment" style="display:none" onchange="document.getElementById('uploadForm').submit(); document.getElementById('msg').style.display='block';">
-        <label for="camInput" class="btn">Open Camera</label>
+        <input type="file" name="file" id="camInput" accept="image/*" capture="environment" style="display:none" onchange="uploadNow()">
+        <label for="camInput" class="btn">📷 Open Camera</label>
     </form>
-    <p id="msg" style="display:none; margin-top:20px; font-weight:bold;">Uploading...</p>
+
+    <div id="loading" style="display:none; margin-top:30px;">
+        <h3 style="color:#FFD700;">Uploading... ⏳</h3>
+        <p>Please wait...</p>
+    </div>
+
+    <script>
+        function uploadNow() {
+            // Show loading text
+            document.getElementById('loading').style.display = 'block';
+            // Hide the button so they don't click twice
+            document.querySelector('.btn').style.display = 'none';
+            // Submit the form automatically
+            document.getElementById('uploadForm').submit();
+        }
+    </script>
 </body>
 </html>

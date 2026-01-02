@@ -17,8 +17,12 @@
         </div>
 
         <p style="font-size:12px; color:#999; margin-top:20px;">
-            QR Link: {{ mobile_url }}
+            <i class="fas fa-link"></i> Link: {{ mobile_url }}
         </p>
+
+        <a href="{{ url_for('prescriptions_bp.show_upload_form') }}" style="display:block; margin-top:20px; color:#4A148C; text-decoration:none; font-weight:bold;">
+            ← Back to Manual Upload
+        </a>
     </div>
 </div>
 
@@ -26,7 +30,7 @@
     const token = "{{ token }}";
     const statusBox = document.getElementById("status-box");
 
-    // Poll every 1.5 seconds
+    // Poll the server every 1.5 seconds to see if the phone finished
     const interval = setInterval(() => {
         fetch(`/prescriptions/check_status/${token}`)
         .then(res => res.json())
@@ -36,7 +40,16 @@
                 statusBox.style.background = "#E8F5E9";
                 statusBox.style.color = "#2E7D32";
                 statusBox.innerHTML = `✅ Received: ${data.filename}`;
+                
+                // Redirect back to the main form after 1 second
+                setTimeout(() => {
+                    window.location.href = "{{ url_for('prescriptions_bp.show_upload_form') }}";
+                }, 1500);
             } 
+            else if (data.status === "expired") {
+                clearInterval(interval);
+                statusBox.innerHTML = "❌ Session Expired. Please refresh.";
+            }
         });
     }, 1500);
 </script>

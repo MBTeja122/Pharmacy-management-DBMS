@@ -1,55 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pharmacy Upload</title>
-    <style>
-        body { font-family: sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; padding-top: 50px; }
-        .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 400px; }
-        h2 { text-align: center; color: #333; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="file"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
-        button:hover { background-color: #218838; }
-        .message { padding: 10px; margin-bottom: 20px; border-radius: 5px; text-align: center; }
-        .success { background-color: #d4edda; color: #155724; }
-        .error { background-color: #f8d7da; color: #721c24; }
-    </style>
-</head>
-<body>
+{% extends "layout.html" %}
+{% block title %}Upload Prescription | PharmaTrust{% endblock %}
 
-<div class="container">
-    <h2>📄 Store Prescription</h2>
+{% block content %}
+<div style="background: white; padding: 40px; border-radius: 16px; max-width: 600px; margin: 0 auto; box-shadow: 0 10px 30px rgba(74, 20, 140, 0.1);">
+    <h2 style="color: #4A148C; text-align: center; margin-bottom: 30px;">
+        <i class="fas fa-file-medical"></i> Upload Prescription
+    </h2>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="message {{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-        <div class="form-group">
-            <label>Patient Name</label>
-            <input type="text" name="patient_name" placeholder="Enter patient name" required>
+    <form action="{{ url_for('prescriptions_bp.upload_file') }}" method="POST" enctype="multipart/form-data">
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Patient Name</label>
+            <input type="text" name="patient_name" required style="width: 100%; padding: 12px; border: 2px solid #D1C4E9; border-radius: 8px;">
         </div>
 
-        <div class="form-group">
-            <label>Doctor Name</label>
-            <input type="text" name="doctor_name" placeholder="Enter doctor name" required>
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Doctor Name</label>
+            <input type="text" name="doctor_name" required style="width: 100%; padding: 12px; border: 2px solid #D1C4E9; border-radius: 8px;">
         </div>
 
-        <div class="form-group">
-            <label>Upload Document (PDF/Image)</label>
-            <input type="file" name="file" accept=".pdf, .jpg, .jpeg, .png" required>
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Document</label>
+            <input type="file" name="file" accept=".pdf, .jpg, .png" required style="padding: 10px;">
         </div>
 
-        <button type="submit">Save to MongoDB</button>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <a href="{{ url_for('prescriptions_bp.remote_upload_page') }}" style="display:inline-block; background:#E1BEE7; color:#4A148C; padding:10px 20px; border-radius:20px; text-decoration:none; font-weight:bold;">
+                <i class="fas fa-camera"></i> Use Phone Camera Instead
+            </a>
+        </div>
+
+        <button type="submit" style="width: 100%; padding: 15px; background: #4A148C; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;">
+            Save to Database
+        </button>
     </form>
 </div>
-
-</body>
-</html>
+{% endblock %}

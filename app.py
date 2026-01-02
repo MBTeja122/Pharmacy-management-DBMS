@@ -31,20 +31,19 @@ app.register_blueprint(dash_bp1)
 app.register_blueprint(chatbot_bp)
 app.register_blueprint(notify_bp)
 app.register_blueprint(prescriptions_bp, url_prefix='/prescriptions')
+
+
 @app.route("/")
 def index():
+    # Redirect homepage to the upload form
     return redirect(url_for('prescriptions_bp.show_upload_form'))
 
 if __name__ == "__main__":
     print("\n-------------------------------------------------------")
-    print("🚀 PHARMA SERVER STARTING (OFFLINE HOTSPOT MODE)")
+    print("🚀 PHARMA SERVER STARTED")
+    print("📡 Mode: Offline Hotspot / LAN")
     print("-------------------------------------------------------")
-    print("1. Ensure Laptop Hotspot is ON.")
-    print("2. Connect Phone to Laptop Hotspot.")
-    print("3. IGNORE 'Not Secure' warnings on the phone.")
-    print("-------------------------------------------------------\n")
-
-    # host='0.0.0.0' -> Allows connection from external devices (Phone)
-    # ssl_context='adhoc' -> Enables HTTPS (Required for Camera access)
     
-    app.run(host='0.0.0.0', port=5000, debug=True, ssl_context='adhoc')
+    # host='0.0.0.0' -> Listen for external connections (Phone)
+    # ssl_context='adhoc' -> Enable HTTPS (Required for Camera access)
+    app.run(debug=True, host='0.0.0.0', port=5000, ssl_context='adhoc')

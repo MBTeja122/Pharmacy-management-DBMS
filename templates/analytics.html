@@ -4,122 +4,91 @@
 
 {% block styles %}
 <style>
-    /* 1. Page Header */
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    .page-header h1 { color: #2B3674; margin: 0; font-size: 24px; font-weight: 700; }
-
-    /* 2. KPI Cards (Top Row) */
     .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-    .kpi-card { 
-        background: white; padding: 20px; border-radius: 16px; 
-        box-shadow: 0 4px 20px rgba(0,0,0,0.03); text-align: center; position: relative; overflow: hidden;
-    }
-    .kpi-card h3 { color: #A3AED0; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
-    .kpi-card .value { font-size: 28px; font-weight: 800; color: #2B3674; }
-    .kpi-card::after { content: ""; position: absolute; top:0; left:0; width:6px; height:100%; }
-    .kpi-blue::after { background: #6200EA; } .kpi-green::after { background: #00C853; }
-    .kpi-red::after { background: #D32F2F; } .kpi-orange::after { background: #FF6D00; }
-
-    /* 3. AI GRID (Command Center) */
-    .ai-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; margin-bottom: 30px; }
-    @media(min-width: 1200px) { .ai-grid { grid-template-columns: repeat(4, 1fr); } }
-
-    .ai-card {
-        background: white; border-radius: 16px; padding: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-top: 4px solid #ccc;
-        position: relative; overflow: hidden; height: 260px; /* Fixed Height */
-        display: flex; flex-direction: column;
-    }
-    .ai-card::before {
-        content: "AI INSIGHT"; position: absolute; top: 10px; right: 10px;
-        font-size: 9px; font-weight: bold; color: #BBB; letter-spacing: 1px;
+    .kpi-card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid #ddd; }
+    .kpi-card .value { font-size: 26px; font-weight: bold; color: #333; }
+    
+    /* Auto-fit grid for 5 cards */
+    .ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    
+    .ai-card { 
+        background: white; padding: 20px; border-radius: 12px; 
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05); 
+        position: relative; height: 280px; 
+        display: flex; flex-direction: column; 
     }
     
-    .ai-trend { border-color: #6200EA; }
-    .ai-stock { border-color: #FFAB00; }
-    .ai-risk { border-color: #D32F2F; }
-    .ai-bundle { border-color: #2962FF; }
+    .ai-card.trend { border-top: 5px solid #6200EA; }
+    .ai-card.stock { border-top: 5px solid #FFAB00; }
+    .ai-card.risk { border-top: 5px solid #D32F2F; }
+    .ai-card.dead { border-top: 5px solid #37474F; }
+    .ai-card.bundle { border-top: 5px solid #2962FF; }
 
-    .ai-title { font-size: 14px; font-weight: 700; color: #555; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .ai-title { font-weight: bold; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
     .ai-value { font-size: 24px; font-weight: 800; color: #333; margin-bottom: 5px; }
-    .ai-sub { font-size: 12px; color: #777; line-height: 1.4; flex-grow: 1; overflow-y: auto; }
-
-    .list-box { margin-top: 10px; max-height: 120px; overflow-y: auto; }
+    .ai-sub { font-size: 12px; color: #666; margin-bottom: 15px; }
+    
+    .list-box { overflow-y: auto; flex-grow: 1; }
     .list-item { 
-        padding: 6px 10px; border-radius: 6px; font-size: 11px; margin-bottom: 5px; 
-        display: flex; justify-content: space-between;
+        padding: 8px; border-radius: 6px; font-size: 11px; margin-bottom: 6px; 
+        display: flex; justify-content: space-between; align-items: center;
     }
-    .item-warn { background: #FFF8E1; color: #E65100; }
-    .item-crit { background: #FFEBEE; color: #C62828; }
-    .item-info { background: #E3F2FD; color: #1565C0; }
+    .warn-bg { background: #FFF8E1; color: #E65100; }
+    .crit-bg { background: #FFEBEE; color: #C62828; }
+    .grey-bg { background: #ECEFF1; color: #455A64; }
+    .info-bg { background: #E3F2FD; color: #1565C0; }
 
-    /* 4. MAIN CHARTS GRID */
-    .charts-main { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 30px; }
-    .chart-box { background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+    .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px; }
+    .chart-box { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); min-height: 350px; }
+    .no-data { display:flex; align-items:center; justify-content:center; height:100%; color:#999; }
 </style>
 {% endblock %}
 
 {% block content %}
-    
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-    <div class="page-header">
-        <h1>📊 AI-Powered Analytics</h1>
-        <a href="/sales/billing" style="padding:10px 20px; background:#6200EA; color:white; border-radius:10px; text-decoration:none;">Back to POS</a>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="color:#2B3674; margin:0;">📊 AI Analytics Center</h2>
+        <a href="/sales/billing" style="padding:10px 20px; background:#6200EA; color:white; border-radius:8px; text-decoration:none;">Back to POS</a>
     </div>
 
     <div class="kpi-grid">
-        <div class="kpi-card kpi-blue">
-            <h3>Revenue Today</h3>
-            <div class="value">₹{{ kpis.today_revenue }}</div>
-        </div>
-        <div class="kpi-card kpi-green">
-            <h3>Total Customers</h3>
-            <div class="value">{{ kpis.total_customers }}</div>
-        </div>
-        <div class="kpi-card kpi-red">
-            <h3>Low Stock</h3>
-            <div class="value">{{ kpis.low_stock }}</div>
-        </div>
-        <div class="kpi-card kpi-orange">
-            <h3>Expiring Soon</h3>
-            <div class="value">{{ kpis.expiring }}</div>
-        </div>
+        <div class="kpi-card" style="border-color: #6200EA;"><h3>Revenue</h3><div class="value">₹{{ kpis.today_revenue }}</div></div>
+        <div class="kpi-card" style="border-color: #00C853;"><h3>Customers</h3><div class="value">{{ kpis.total_customers }}</div></div>
+        <div class="kpi-card" style="border-color: #D32F2F;"><h3>Low Stock</h3><div class="value">{{ kpis.low_stock }}</div></div>
+        <div class="kpi-card" style="border-color: #FF6D00;"><h3>Expiring</h3><div class="value">{{ kpis.expiring }}</div></div>
     </div>
 
-    <h3 style="color:#4A148C; margin-bottom:15px;">🧠 Machine Learning Predictions</h3>
     <div class="ai-grid">
         
-        <div class="ai-card ai-trend">
+        <div class="ai-card trend">
             <div class="ai-title"><i class="fas fa-chart-line"></i> Demand Forecast</div>
             <div class="ai-sub">{{ trend_text|safe }}</div>
-            <div id="trend-chart" style="height:100px; margin-top:auto;"></div>
+            <div id="trend-chart" style="flex-grow:1; width:100%;"></div>
         </div>
-
-        <div class="ai-card ai-stock">
+        
+        <div class="ai-card stock">
             <div class="ai-title"><i class="fas fa-shipping-fast"></i> Smart Reorder</div>
-            <div class="ai-sub">Items velocity warning (&lt; 7 days left):</div>
+            <div class="ai-sub">Restock Alert (< 3 days):</div>
             <div class="list-box">
                 {% if reorder_alerts %}
                     {% for r in reorder_alerts %}
-                    <div class="list-item item-warn">
-                        <b>{{ r.name }}</b> <span>{{ r.days }} days left</span>
-                    </div>
+                    <div class="list-item warn-bg"><b>{{ r.name }}</b> <span>{{ r.days }} days left</span></div>
                     {% endfor %}
                 {% else %}
-                    <small style="color:#2E7D32;">✅ Healthy Stock Velocity</small>
+                    <div style="text-align:center; padding:10px; color:#2E7D32;">✅ Healthy</div>
                 {% endif %}
             </div>
         </div>
 
-        <div class="ai-card ai-risk">
+        <div class="ai-card risk">
             <div class="ai-title"><i class="fas fa-exclamation-triangle"></i> Expiry Risk</div>
             <div class="ai-value" style="color:#D32F2F;">₹{{ predicted_loss|int }}</div>
-            <div class="ai-sub">Predicted loss (90 days) based on sales speed.</div>
+            <div class="ai-sub">Predicted loss (90 days):</div>
             <div class="list-box">
                 {% if risky_items %}
-                    {% for r in risky_items[:2] %}
-                    <div class="list-item item-crit">{{ r }}</div>
+                    {% for item in risky_items[:2] %}
+                    <div class="list-item crit-bg">{{ item }}</div>
                     {% endfor %}
                 {% else %}
                     <small style="color:#2E7D32;">✅ Low Risk</small>
@@ -127,47 +96,62 @@
             </div>
         </div>
 
-        <div class="ai-card ai-bundle">
-            <div class="ai-title"><i class="fas fa-link"></i> Smart Bundles (KNN)</div>
+        <div class="ai-card dead">
+            <div class="ai-title"><i class="fas fa-box-open"></i> Dead Stock</div>
+            <div class="ai-sub">Unsold > 90 days (Cash stuck):</div>
+            <div class="list-box">
+                {% if dead_stock_list %}
+                    {% for d in dead_stock_list %}
+                    <div class="list-item grey-bg">
+                        <span>{{ d.name }}</span>
+                        <b style="color:#37474F;">₹{{ d.cash }}</b>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <small style="color:#2E7D32;">✅ No Dead Stock</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="ai-card bundle">
+            <div class="ai-title"><i class="fas fa-link"></i> Smart Bundles</div>
             <div class="ai-sub">Frequently bought together:</div>
             <div class="list-box">
                 {% if bundle_suggestions %}
                     {% for b in bundle_suggestions %}
-                    <div class="list-item item-info">
+                    <div class="list-item info-bg">
                         <span>{{ b.item }} + {{ b.partner }}</span>
                         <b>{{ b.score }}%</b>
                     </div>
                     {% endfor %}
                 {% else %}
-                    <small style="color:#888;">Need more data for patterns.</small>
+                    <small style="color:#888;">Need more data.</small>
                 {% endif %}
             </div>
         </div>
+
     </div>
 
-    <h3 style="color:#4A148C; margin-bottom:15px;">📈 Business Performance</h3>
+    <div class="charts-row">
+        <div class="chart-box" id="profit-chart">{% if graph_profit == "{}" %}<div class="no-data">No Data</div>{% endif %}</div>
+        <div class="chart-box" id="cat-chart">{% if graph_cat == "{}" %}<div class="no-data">No Category Data</div>{% endif %}</div>
+    </div>
     
-    <div class="charts-main">
-        <div class="chart-box" id="profit-chart"></div>
-        <div class="chart-box" id="cat-chart"></div>
-    </div>
-
-    <div class="charts-main" style="grid-template-columns: 1fr;">
-        <div class="chart-box" id="hour-chart"></div>
+    <div class="chart-box" id="hour-chart" style="height:350px;">
+        {% if graph_hour == "{}" %}<div class="no-data">No Peak Hour Data</div>{% endif %}
     </div>
 
     <script>
-        // 1. Render Tiny Trend Chart
         var tGraph = {{ graph_trend | safe }};
-        tGraph.layout.margin = {l:0, r:0, t:0, b:0};
-        tGraph.layout.height = 100;
-        tGraph.layout.showlegend = false;
-        Plotly.newPlot('trend-chart', tGraph.data, tGraph.layout, {displayModeBar: false});
+        if(Object.keys(tGraph).length !== 0) Plotly.newPlot('trend-chart', tGraph.data, tGraph.layout, {displayModeBar: false, responsive: true});
 
-        // 2. Render Main Charts
-        Plotly.newPlot('profit-chart', {{ graph_profit | safe }}.data, {{ graph_profit | safe }}.layout);
-        Plotly.newPlot('cat-chart', {{ graph_cat | safe }}.data, {{ graph_cat | safe }}.layout);
-        Plotly.newPlot('hour-chart', {{ graph_hour | safe }}.data, {{ graph_hour | safe }}.layout);
+        var pGraph = {{ graph_profit | safe }};
+        if(Object.keys(pGraph).length !== 0) Plotly.newPlot('profit-chart', pGraph.data, pGraph.layout, {responsive: true});
+
+        var cGraph = {{ graph_cat | safe }};
+        if(Object.keys(cGraph).length !== 0) Plotly.newPlot('cat-chart', cGraph.data, cGraph.layout, {responsive: true});
+
+        var hGraph = {{ graph_hour | safe }};
+        if(Object.keys(hGraph).length !== 0) Plotly.newPlot('hour-chart', hGraph.data, hGraph.layout, {responsive: true});
     </script>
-
 {% endblock %}
