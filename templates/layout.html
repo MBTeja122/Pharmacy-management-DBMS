@@ -7,6 +7,7 @@
     <title>{% block title %}PharmaTrust{% endblock %}</title>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
         /* --- GLOBAL THEME --- */
@@ -16,12 +17,13 @@
             --accent-glow: #E1BEE7;
             --bg-canvas: #F3E5F5;
             --sidebar-width: 260px;
+            --chat-width: 380px;
         }
 
         body {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-canvas);
             display: flex;
             height: 100vh;
@@ -35,7 +37,7 @@
             display: flex;
             flex-direction: column;
             padding: 25px;
-            box-shadow: 4px 0 20px rgba(74, 20, 140, 0.1);
+            box-shadow: 4px 0 20px rgba(74, 20, 140, 0.05);
             z-index: 1000;
             overflow: visible;
             position: relative;
@@ -78,7 +80,7 @@
             transform: translateX(5px);
         }
 
-        /* --- NOTIFICATION DROPDOWN STYLES --- */
+        /* --- NOTIFICATION DROPDOWN --- */
         .notification-box {
             margin-bottom: 10px;
             position: relative;
@@ -106,7 +108,7 @@
             width: 320px;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
             z-index: 9999;
             border: 1px solid #EEE;
             overflow: hidden;
@@ -124,15 +126,8 @@
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .noti-header {
@@ -152,37 +147,13 @@
             transition: 0.2s;
         }
 
-        .noti-item:hover {
-            background: #f9f9f9;
-        }
-
-        .noti-msg {
-            font-size: 13px;
-            color: #333;
-            margin-bottom: 4px;
-            line-height: 1.4;
-        }
-
-        .noti-time {
-            font-size: 11px;
-            color: #999;
-        }
-
-        .border-danger {
-            border-left: 4px solid #D32F2F;
-        }
-
-        .border-warning {
-            border-left: 4px solid #FFAB00;
-        }
-
-        .border-success {
-            border-left: 4px solid #2E7D32;
-        }
-
-        .border-info {
-            border-left: 4px solid #2962FF;
-        }
+        .noti-item:hover { background: #f9f9f9; }
+        .noti-msg { font-size: 13px; color: #333; margin-bottom: 4px; line-height: 1.4; }
+        .noti-time { font-size: 11px; color: #999; }
+        .border-danger { border-left: 4px solid #D32F2F; }
+        .border-warning { border-left: 4px solid #FFAB00; }
+        .border-success { border-left: 4px solid #2E7D32; }
+        .border-info { border-left: 4px solid #2962FF; }
 
         /* --- MAIN CONTENT AREA --- */
         .main-content {
@@ -193,7 +164,7 @@
             z-index: 1;
         }
 
-        /* --- CHATBOT --- */
+        /* --- MODERN CHATBOT UI --- */
         .fab-btn {
             position: fixed;
             bottom: 30px;
@@ -207,14 +178,14 @@
             justify-content: center;
             align-items: center;
             font-size: 24px;
-            box-shadow: 0 5px 20px rgba(74, 20, 140, 0.4);
+            box-shadow: 0 8px 25px rgba(74, 20, 140, 0.4);
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 2000;
         }
 
         .fab-btn:hover {
-            transform: scale(1.1);
+            transform: scale(1.1) rotate(-10deg);
             background: var(--primary-light);
         }
 
@@ -223,71 +194,122 @@
             position: fixed;
             bottom: 100px;
             right: 30px;
-            width: 350px;
-            height: 500px;
+            width: var(--chat-width);
+            height: 550px;
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
             flex-direction: column;
             overflow: hidden;
             z-index: 2000;
+            border: 1px solid rgba(255,255,255,0.8);
+            animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .bot-header {
-            background: var(--primary-deep);
-            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-deep), var(--primary-light));
+            padding: 18px 20px;
             color: white;
-            font-weight: bold;
+            font-weight: 600;
             display: flex;
+            align-items: center;
             justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .chat-body {
             flex: 1;
-            padding: 15px;
+            padding: 20px;
             overflow-y: auto;
-            background: #f9f9f9;
+            background: #FAFAFA;
+            scroll-behavior: smooth;
         }
 
+        /* Custom Scrollbar for Chat */
+        .chat-body::-webkit-scrollbar { width: 6px; }
+        .chat-body::-webkit-scrollbar-thumb { background-color: #E0E0E0; border-radius: 3px; }
+
         .chat-input-area {
-            padding: 10px;
-            border-top: 1px solid #eee;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #EEE;
             display: flex;
-            gap: 5px;
+            gap: 10px;
+            align-items: center;
         }
 
         .chat-input {
             flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
+            padding: 12px 15px;
+            border: 2px solid #EEE;
+            border-radius: 25px;
             outline: none;
+            font-size: 14px;
+            transition: 0.2s;
+            background: #F9F9F9;
         }
 
+        .chat-input:focus {
+            border-color: var(--primary-light);
+            background: white;
+        }
+
+        .icon-btn {
+            background: transparent;
+            color: #888;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .icon-btn:hover { background: #EEE; color: var(--primary-deep); }
+        
         .send-btn {
             background: var(--primary-deep);
             color: white;
-            border: none;
             width: 40px;
             height: 40px;
+            border: none;
             border-radius: 50%;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(74, 20, 140, 0.3);
+            transition: 0.2s;
         }
+        .send-btn:hover { transform: scale(1.05); }
 
         .msg {
-            padding: 8px 12px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            max-width: 80%;
-            font-size: 13px;
-            line-height: 1.4;
+            padding: 10px 14px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            max-width: 85%;
+            font-size: 13.5px;
+            line-height: 1.5;
+            position: relative;
+            word-wrap: break-word;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
         .msg-bot {
-            background: #E1BEE7;
-            color: #2E1A47;
+            background: white;
+            color: #333;
             align-self: flex-start;
-            border-bottom-left-radius: 2px;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #EFEFEF;
         }
 
         .msg-user {
@@ -295,7 +317,50 @@
             color: white;
             align-self: flex-end;
             margin-left: auto;
-            border-bottom-right-radius: 2px;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* --- TYPING INDICATOR --- */
+        .typing-indicator {
+            display: inline-flex;
+            gap: 4px;
+            padding: 5px 10px;
+            background: white;
+            border-radius: 15px;
+            width: fit-content;
+        }
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: #B0B0B0;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* --- PRODUCT CARD STYLES (For Bot HTML Responses) --- */
+        .bot-card {
+            background: #F3E5F5;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #E1BEE7;
+            margin-top: 5px;
+        }
+        .bot-btn {
+            background: var(--primary-deep);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-top: 5px;
         }
     </style>
     {% block styles %}{% endblock %}
@@ -357,7 +422,7 @@
                 </div>
             </div>
 
-            <a href="/" class="nav-item" style="color:#C62828;">
+            <a href="{{ url_for('auth.login') }}" class="nav-item" style="color:#C62828;">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
@@ -385,25 +450,43 @@
 
     <div class="bot-window" id="chatWindow">
         <div class="bot-header">
-            <span>🤖 PharmaBot</span>
-            <span onclick="toggleChat()" style="cursor:pointer;">&times;</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-robot"></i> 
+                <span>PharmaBot AI</span>
+            </div>
+            <span onclick="toggleChat()" style="cursor:pointer; opacity:0.8;">
+                <i class="fas fa-times"></i>
+            </span>
         </div>
+        
         <div class="chat-body" id="chatBody">
-            <div class="msg msg-bot">Hello! I can help you find medicines, check sales, or predict revenue. Ask me
-                anything!</div>
+            <div class="msg msg-bot">
+                👋 Hi! I can help you check stock, find substitutes, or spot expiring items.
+            </div>
         </div>
+
         <div class="chat-input-area">
-            <input type="text" class="chat-input" id="userMsg" placeholder="Type query..."
+            <button class="icon-btn" onclick="startVoice()" title="Speak">
+                <i class="fas fa-microphone" id="micIcon"></i>
+            </button>
+
+            <input type="text" class="chat-input" id="userMsg" placeholder="Type or say..."
                 onkeypress="handleEnter(event)">
-            <button class="send-btn" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
+            
+            <button class="send-btn" onclick="sendMsg()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
         </div>
     </div>
 
     <script>
-        // --- 1. CHATBOT LOGIC ---
+        /* --- 1. CHATBOT LOGIC --- */
         function toggleChat() {
             const win = document.getElementById("chatWindow");
             win.style.display = win.style.display === "flex" ? "none" : "flex";
+            if (win.style.display === "flex") {
+                document.getElementById("userMsg").focus();
+            }
         }
 
         function handleEnter(e) { if (e.key === 'Enter') sendMsg(); }
@@ -413,37 +496,120 @@
             const txt = input.value.trim();
             if (!txt) return;
 
+            // 1. Add User Message
             addMsg(txt, "user");
             input.value = "";
             input.focus();
 
-            // 🔥 CHANGED: Updated Thinking Message
-            const loadId = addMsg("Analyzing data...", "bot");
+            // 2. Add "Typing..." Animation
+            const loadingId = addTypingIndicator();
 
+            // 3. Call API
             fetch("/admin/chat_api", {
                 method: "POST", headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: txt })
             })
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById(loadId).innerText = data.reply;
-                })
-                .catch(() => {
-                    document.getElementById(loadId).innerText = "Sorry, my brain is offline.";
-                });
+            .then(res => res.json())
+            .then(data => {
+                // Remove loader and add real response (HTML supported)
+                removeMsg(loadingId);
+                addMsg(data.reply, "bot");
+            })
+            .catch(() => {
+                removeMsg(loadingId);
+                addMsg("⚠️ My brain is offline. Check server logs.", "bot");
+            });
         }
 
         function addMsg(txt, sender) {
             const div = document.createElement("div");
             div.className = `msg msg-${sender}`;
-            div.innerText = txt;
-            div.id = "msg-" + Date.now();
+            div.innerHTML = txt; // Use innerHTML to support Bold/Italic/Tables
             document.getElementById("chatBody").appendChild(div);
-            document.getElementById("chatBody").scrollTop = document.getElementById("chatBody").scrollHeight;
+            scrollToBottom();
+            return div;
+        }
+
+        function addTypingIndicator() {
+            const div = document.createElement("div");
+            div.id = "typing-" + Date.now();
+            div.className = "msg msg-bot";
+            div.style.background = "transparent";
+            div.style.border = "none";
+            div.style.padding = "0";
+            div.innerHTML = `
+                <div class="typing-indicator">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            `;
+            document.getElementById("chatBody").appendChild(div);
+            scrollToBottom();
             return div.id;
         }
 
-        // --- 2. NOTIFICATION LOGIC ---
+        function removeMsg(id) {
+            const el = document.getElementById(id);
+            if(el) el.remove();
+        }
+
+        function scrollToBottom() {
+            const body = document.getElementById("chatBody");
+            body.scrollTop = body.scrollHeight;
+        }
+
+        /* --- 2. VOICE RECOGNITION (New) --- */
+        function startVoice() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                alert("Your browser does not support voice input. Try Chrome or Edge.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            
+            // Visual Feedback
+            const micIcon = document.getElementById("micIcon");
+            micIcon.style.color = "#D32F2F";
+            micIcon.className = "fas fa-spinner fa-spin"; 
+
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById("userMsg").value = transcript;
+                micIcon.className = "fas fa-microphone";
+                micIcon.style.color = "#888";
+                sendMsg(); // Auto-send
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Voice Error:", event.error);
+                micIcon.className = "fas fa-microphone-slash"; 
+                setTimeout(() => {
+                    micIcon.className = "fas fa-microphone";
+                    micIcon.style.color = "#888";
+                }, 2000);
+            };
+            
+            recognition.onend = function() {
+                if (micIcon.className.includes("spinner")) {
+                     micIcon.className = "fas fa-microphone";
+                     micIcon.style.color = "#888";
+                }
+            };
+        }
+
+        /* --- 3. HELPER FOR BOT BUTTONS --- */
+        function copyToBill(medicineName) {
+            // Placeholder: In real app, integrate with Billing Table
+            alert(`✅ Added ${medicineName} to the billing queue!`);
+        }
+
+        /* --- 4. NOTIFICATION LOGIC (Unchanged) --- */
         function toggleNoti() {
             const drop = document.getElementById("noti-dropdown");
             drop.style.display = drop.style.display === "block" ? "none" : "block";
