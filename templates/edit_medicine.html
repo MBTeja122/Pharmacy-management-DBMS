@@ -15,11 +15,10 @@
         --input-border: #D1C4E9;
     }
 
-    /* CONTAINER: Wider for 3 Columns */
     .form-container {
         background: var(--card-surface);
         width: 100%;
-        max-width: 1100px; /* Increased width */
+        max-width: 1100px;
         padding: 40px;
         border-radius: 16px;
         box-shadow: 0 10px 30px rgba(74, 20, 140, 0.15);
@@ -33,33 +32,38 @@
         font-size: 28px; font-weight: 700;
     }
 
-    /* GRID SYSTEM: 3 Columns */
+    /* GRID SYSTEM: 3 Columns with equal 25px gap */
     form {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 25px;
-        align-items: center;
     }
 
     .full-width { grid-column: 1 / -1; }
 
-    /* Input Styling */
-    .form-group { margin: 0; position: relative; }
+    /* Standardized height for all boxes to ensure alignment */
+    .form-group { position: relative; height: 54px; }
+    .form-group.full-width { height: auto; }
 
     input, select, textarea {
-        width: 100%; padding: 14px;
+        width: 100%; height: 100%;
+        padding: 12px 15px;
         border: 2px solid var(--input-border);
         border-radius: 8px; background: #FAFAFA;
         font-size: 14px; color: var(--text-main);
         transition: 0.3s;
+        box-sizing: border-box;
     }
 
-    textarea { height: 80px; resize: none; }
+    textarea { height: 80px; resize: none; padding-top: 15px; }
 
+    /* Floating Label Logic */
     label {
         position: absolute; left: 12px; top: -10px;
         background: var(--card-surface); padding: 0 5px;
         font-size: 12px; color: var(--primary-light); font-weight: bold;
+        z-index: 2;
+        pointer-events: none;
     }
 
     input:focus, textarea:focus, select:focus {
@@ -69,33 +73,33 @@
         outline: none;
     }
 
-    /* Checkbox */
-    .checkbox-inline {
+    /* Checkbox box styled to match input height and alignment */
+    .checkbox-group {
         display: flex; align-items: center; 
-        height: 100%; padding-left: 5px;
+        height: 54px; padding: 0 15px;
+        border: 2px solid var(--input-border);
+        border-radius: 8px; background: #FAFAFA;
     }
-    .checkbox-inline input { width: 22px; height: 22px; accent-color: var(--primary-deep); cursor: pointer; }
-    .checkbox-inline label { position: static; margin-left: 10px; font-size: 15px; color: var(--text-main); font-weight: 500; }
+    .checkbox-group input { width: 20px; height: 20px; accent-color: var(--primary-deep); cursor: pointer; margin-right: 12px; }
+    .checkbox-group label { position: static; font-size: 14px; color: var(--text-main); font-weight: 500; background: transparent; padding: 0; }
 
     /* Buttons */
     .btn-save {
-        width: 100%; background: var(--primary-deep);
-        padding: 15px; color: #fff; border: none;
-        font-size: 16px; font-weight: bold; border-radius: 6px;
-        cursor: pointer; transition: 0.3s; margin-top: 20px;
+        width: 100%; background: linear-gradient(135deg, var(--primary-deep), var(--primary-light));
+        padding: 16px; color: #fff; border: none;
+        font-size: 16px; font-weight: bold; border-radius: 8px;
+        cursor: pointer; transition: 0.3s; margin-top: 10px;
     }
-    .btn-save:hover { background: var(--primary-light); transform: translateY(-2px); }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(74, 20, 140, 0.4); }
 
     .back-link {
         display: block; text-align: center; margin-top: 20px;
-        color: var(--text-main); text-decoration: none; font-weight: 600;
+        color: var(--text-muted); text-decoration: none; font-weight: 600;
     }
-    .back-link:hover { text-decoration: underline; color: var(--primary-light); }
+    .back-link:hover { color: var(--primary-light); }
 
-    /* 🚫 HIDE CHATBOT ON THIS PAGE */
     .fab-btn, .bot-window { display: none !important; }
 
-    /* RESPONSIVE */
     @media(max-width: 1024px) { form { grid-template-columns: 1fr 1fr; } }
     @media(max-width: 600px) { form { grid-template-columns: 1fr; } }
 </style>
@@ -107,19 +111,18 @@
         <h2>Edit Medicine Details</h2>
 
         <form method="POST">
-
             <div class="form-group">
-                <input type="text" name="brand_name" value="{{ medicine.brand_name }}" required>
-                <label>Brand Name</label>
+                <input type="text" name="brand_name" id="brand_name" value="{{ medicine.brand_name }}" required>
+                <label for="brand_name">Brand Name</label>
             </div>
 
             <div class="form-group">
-                <input type="text" name="generic_name" value="{{ medicine.generic_name }}" required>
-                <label>Generic Name</label>
+                <input type="text" name="generic_name" id="generic_name" value="{{ medicine.generic_name }}" required>
+                <label for="generic_name">Generic Name</label>
             </div>
 
             <div class="form-group">
-                <select name="form" required>
+                <select name="form" id="form" required>
                     <option disabled>Select Form</option>
                     <option value="Tablet" {% if medicine.form=='Tablet' %}selected{% endif %}>Tablet</option>
                     <option value="Capsule" {% if medicine.form=='Capsule' %}selected{% endif %}>Capsule</option>
@@ -128,61 +131,63 @@
                     <option value="Cream" {% if medicine.form=='Cream' %}selected{% endif %}>Cream</option>
                     <option value="Inhaler" {% if medicine.form=='Inhaler' %}selected{% endif %}>Inhaler</option>
                 </select>
-                <label>Form</label>
+                <label for="form">Form</label>
             </div>
 
             <div class="form-group">
-                <input type="text" name="strength" value="{{ medicine.strength }}">
-                <label>Strength</label>
+                <input type="text" name="strength" id="strength" value="{{ medicine.strength }}">
+                <label for="strength">Strength</label>
             </div>
 
             <div class="form-group">
-                <input type="text" name="primary_ingredient" value="{{ medicine.primary_ingredient }}">
-                <label>Primary Ingredient</label>
+                <input type="text" name="primary_ingredient" id="primary_ingredient" value="{{ medicine.primary_ingredient }}">
+                <label for="primary_ingredient">Primary Ingredient</label>
             </div>
 
             <div class="form-group">
-                <input type="text" name="health_condition" value="{{ medicine.health_condition }}">
-                <label>Health Condition</label>
+                <input type="text" name="health_condition" id="health_condition" value="{{ medicine.health_condition }}">
+                <label for="health_condition">Health Condition</label>
             </div>
 
             <div class="form-group full-width">
-                <textarea name="description">{{ medicine.description }}</textarea>
-                <label>Description</label>
+                <textarea name="description" id="description">{{ medicine.description }}</textarea>
+                <label for="description">Description</label>
             </div>
 
             <div class="form-group">
-                <input type="text" name="batch_no" value="{{ medicine.batch_no }}" readonly style="background:#F0F0F0; cursor: not-allowed;">
-                <label>Batch No (Read-Only)</label>
+                <input type="text" name="batch_no" id="batch_no" value="{{ medicine.batch_no }}" readonly style="background:#F0F0F0; cursor: not-allowed;">
+                <label for="batch_no">Batch No (Read-Only)</label>
             </div>
 
             <div class="form-group">
-                <input type="date" name="mfg_date" value="{{ medicine.mfg_date }}">
-                <label>MFG Date</label>
+                <input type="date" name="mfg_date" id="mfg_date" 
+                    value="{{ medicine.mfg_date }}" placeholder=" ">
+                <label for="mfg_date">MFG Date</label>
             </div>
 
             <div class="form-group">
-                <input type="date" name="expiry_date" value="{{ medicine.expiry_date }}" required>
-                <label>Expiry Date</label>
+                <input type="date" name="expiry_date" id="expiry_date" 
+                    value="{{ medicine.expiry_date }}" required placeholder=" ">
+                <label for="expiry_date">Expiry Date</label>
             </div>
 
             <div class="form-group">
-                <input type="number" name="quantity" value="{{ medicine.quantity }}" required>
-                <label>Quantity</label>
+                <input type="number" name="quantity" id="quantity" value="{{ medicine.quantity }}" required>
+                <label for="quantity">Quantity</label>
             </div>
 
             <div class="form-group">
-                <input type="number" step="0.01" name="cost_price" value="{{ medicine.cost_price }}">
-                <label>Cost Price (₹)</label>
+                <input type="number" step="0.01" name="cost_price" id="cost_price" value="{{ medicine.cost_price }}">
+                <label for="cost_price">Cost Price (₹)</label>
             </div>
 
             <div class="form-group">
-                <input type="number" step="0.01" name="mrp" value="{{ medicine.mrp }}" required>
-                <label>MRP (₹)</label>
+                <input type="number" step="0.01" name="mrp" id="mrp" value="{{ medicine.mrp }}" required>
+                <label for="mrp">MRP (₹)</label>
             </div>
 
             <div class="form-group">
-                <select name="supplier_id" required>
+                <select name="supplier_id" id="supplier_id" required>
                     <option disabled>Select Supplier</option>
                     {% for s in suppliers %}
                         <option value="{{ s.supplier_id }}" {% if s.supplier_id == medicine.supplier_id %}selected{% endif %}>
@@ -190,27 +195,27 @@
                         </option>
                     {% endfor %}
                 </select>
-                <label>Supplier</label>
+                <label for="supplier_id">Supplier</label>
             </div>
 
             <div class="form-group">
-                <input type="number" name="reorder_level" value="{{ medicine.reorder_level }}">
-                <label>Reorder Level</label>
+                <input type="number" name="reorder_level" id="reorder_level" value="{{ medicine.reorder_level }}">
+                <label for="reorder_level">Reorder Level</label>
             </div>
 
             <div class="form-group">
-                <input type="number" name="low_stock_threshold" value="{{ medicine.low_stock_threshold }}">
-                <label>Low Stock Threshold</label>
+                <input type="number" name="low_stock_threshold" id="low_stock_threshold" value="{{ medicine.low_stock_threshold }}">
+                <label for="low_stock_threshold">Low Stock Threshold</label>
             </div>
 
             <div class="form-group">
-                <input type="text" name="location" value="{{ medicine.location }}" required>
-                <label>Storage Location</label>
+                <input type="text" name="location" id="location" value="{{ medicine.location }}" required>
+                <label for="location">Storage Location</label>
             </div>
 
-            <div class="checkbox-inline">
-                <input type="checkbox" name="is_otc" {% if medicine.is_otc %}checked{% endif %}>
-                <label>OTC / Non-prescription?</label>
+            <div class="checkbox-group">
+                <input type="checkbox" name="is_otc" id="is_otc" {% if medicine.is_otc %}checked{% endif %}>
+                <label for="is_otc">OTC / Non-prescription?</label>
             </div>
 
             <button type="submit" class="btn-save full-width">Update Medicine Details</button>

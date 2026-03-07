@@ -14,354 +14,149 @@
         :root {
             --primary-deep: #4A148C;
             --primary-light: #7B1FA2;
-            --accent-glow: #E1BEE7;
             --bg-canvas: #F3E5F5;
             --sidebar-width: 260px;
             --chat-width: 380px;
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0; padding: 0;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg-canvas);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
+            display: flex; height: 100vh; overflow: hidden;
         }
 
         /* --- SIDEBAR --- */
         .sidebar {
             width: var(--sidebar-width);
             background: white;
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
             padding: 25px;
             box-shadow: 4px 0 20px rgba(74, 20, 140, 0.05);
             z-index: 1000;
-            overflow: visible;
-            position: relative;
         }
 
         .brand {
-            font-size: 24px;
-            font-weight: 800;
+            font-size: 24px; font-weight: 800;
             color: var(--primary-deep);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; align-items: center; gap: 10px;
             margin-bottom: 40px;
         }
 
-        .nav-links {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+        .nav-links { flex-grow: 1; display: flex; flex-direction: column; gap: 10px; }
 
         .nav-item {
-            text-decoration: none;
-            color: #6A5B7E;
-            font-weight: 600;
-            padding: 12px 15px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            text-decoration: none; color: #6A5B7E;
+            font-weight: 600; padding: 12px 15px;
+            border-radius: 10px; display: flex; align-items: center; gap: 12px;
             transition: 0.3s;
-            position: relative;
         }
 
-        .nav-item:hover,
-        .nav-item.active {
-            background: var(--bg-canvas);
-            color: var(--primary-deep);
+        .nav-item:hover, .nav-item.active {
+            background: var(--bg-canvas); color: var(--primary-deep);
             transform: translateX(5px);
         }
 
         /* --- NOTIFICATION DROPDOWN --- */
-        .notification-box {
-            margin-bottom: 10px;
-            position: relative;
+        .notification-box { 
+            margin-bottom: 10px; 
+            position: relative; 
         }
-
+        
         #noti-badge {
-            display: none;
-            position: absolute;
-            top: 8px;
-            right: 10px;
-            background: #D32F2F;
-            color: white;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 50%;
+            display: none; position: absolute; top: 8px; right: 10px;
+            background: #D32F2F; color: white; font-size: 10px;
+            padding: 2px 6px; border-radius: 50%; border: 2px solid white;
             font-weight: bold;
-            border: 2px solid white;
         }
 
         #noti-dropdown {
-            display: none;
-            position: absolute;
-            left: 105%;
-            top: -20px;
-            width: 320px;
-            background: white;
+            display: none; 
+            position: absolute; 
+            left: 20px; 
+            bottom: 50px; /* Opens UPWARDS since it's at bottom */
+            width: 300px; 
+            background: white; 
             border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2); 
             z-index: 9999;
-            border: 1px solid #EEE;
+            border: 1px solid #E0E0E0;
             overflow: hidden;
-            animation: slideIn 0.2s ease-out;
-        }
-
-        #noti-dropdown::before {
-            content: "";
-            position: absolute;
-            top: 30px;
-            left: -10px;
-            border-width: 10px 10px 10px 0;
-            border-style: solid;
-            border-color: transparent white transparent transparent;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
         }
 
         .noti-header {
-            background: var(--primary-deep);
-            color: white;
-            padding: 12px 15px;
-            font-weight: bold;
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .noti-item {
-            padding: 12px 15px;
+            background: white; color: #333;
+            padding: 15px; font-weight: 700; font-size: 15px;
             border-bottom: 1px solid #f0f0f0;
-            cursor: pointer;
+            display: flex; justify-content: space-between;
+        }
+
+        .noti-item { 
+            padding: 12px 15px; 
+            border-bottom: 1px solid #eee; 
+            cursor: pointer; 
             transition: 0.2s;
+            background: white;
         }
-
-        .noti-item:hover { background: #f9f9f9; }
-        .noti-msg { font-size: 13px; color: #333; margin-bottom: 4px; line-height: 1.4; }
+        
+        .noti-item:hover { background: #F9F9F9; }
+        
+        .noti-msg { font-size: 13px; color: #444; font-weight: 500; margin-bottom: 4px; }
         .noti-time { font-size: 11px; color: #999; }
-        .border-danger { border-left: 4px solid #D32F2F; }
-        .border-warning { border-left: 4px solid #FFAB00; }
-        .border-success { border-left: 4px solid #2E7D32; }
-        .border-info { border-left: 4px solid #2962FF; }
 
-        /* --- MAIN CONTENT AREA --- */
+        /* --- MAIN CONTENT --- */
         .main-content {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 30px;
-            position: relative;
-            z-index: 1;
+            flex-grow: 1; overflow-y: auto; padding: 30px;
         }
 
-        /* --- MODERN CHATBOT UI --- */
+        /* --- CHATBOT UI --- */
         .fab-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background: var(--primary-deep);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            box-shadow: 0 8px 25px rgba(74, 20, 140, 0.4);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 2000;
+            position: fixed; bottom: 30px; right: 30px;
+            width: 60px; height: 60px;
+            background: var(--primary-deep); color: white;
+            border-radius: 50%; display: flex;
+            justify-content: center; align-items: center;
+            font-size: 24px; box-shadow: 0 8px 25px rgba(74, 20, 140, 0.4);
+            cursor: pointer; z-index: 2000; transition: 0.3s;
         }
-
-        .fab-btn:hover {
-            transform: scale(1.1) rotate(-10deg);
-            background: var(--primary-light);
-        }
+        .fab-btn:hover { transform: scale(1.1); }
 
         .bot-window {
-            display: none;
-            position: fixed;
-            bottom: 100px;
-            right: 30px;
-            width: var(--chat-width);
-            height: 550px;
-            background: white;
-            border-radius: 20px;
+            display: none; position: fixed; bottom: 100px; right: 30px;
+            width: var(--chat-width); height: 550px;
+            background: white; border-radius: 20px;
             box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
-            flex-direction: column;
-            overflow: hidden;
-            z-index: 2000;
-            border: 1px solid rgba(255,255,255,0.8);
-            animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            flex-direction: column; overflow: hidden; z-index: 2000;
         }
-
-        @keyframes popUp {
-            from { opacity: 0; transform: translateY(20px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
         .bot-header {
             background: linear-gradient(135deg, var(--primary-deep), var(--primary-light));
-            padding: 18px 20px;
-            color: white;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 18px 20px; color: white; font-weight: 600;
+            display: flex; justify-content: space-between; align-items: center;
         }
-
         .chat-body {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #FAFAFA;
-            scroll-behavior: smooth;
+            flex: 1; padding: 20px; overflow-y: auto; background: #FAFAFA;
         }
-
-        /* Custom Scrollbar for Chat */
-        .chat-body::-webkit-scrollbar { width: 6px; }
-        .chat-body::-webkit-scrollbar-thumb { background-color: #E0E0E0; border-radius: 3px; }
-
         .chat-input-area {
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #EEE;
-            display: flex;
-            gap: 10px;
-            align-items: center;
+            padding: 15px; background: white; border-top: 1px solid #EEE;
+            display: flex; gap: 10px; align-items: center;
         }
-
         .chat-input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #EEE;
-            border-radius: 25px;
-            outline: none;
-            font-size: 14px;
-            transition: 0.2s;
-            background: #F9F9F9;
+            flex: 1; padding: 12px 15px; border: 2px solid #EEE;
+            border-radius: 25px; outline: none; background: #F9F9F9;
         }
+        .icon-btn, .send-btn { border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .icon-btn { background: transparent; color: #888; width: 35px; height: 35px; font-size: 16px; }
+        .send-btn { background: var(--primary-deep); color: white; width: 40px; height: 40px; border-radius: 50%; }
 
-        .chat-input:focus {
-            border-color: var(--primary-light);
-            background: white;
-        }
-
-        .icon-btn {
-            background: transparent;
-            color: #888;
-            border: none;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-
-        .icon-btn:hover { background: #EEE; color: var(--primary-deep); }
+        .msg { padding: 10px 14px; border-radius: 14px; margin-bottom: 12px; max-width: 85%; font-size: 13.5px; line-height: 1.5; }
+        .msg-bot { background: white; color: #333; align-self: flex-start; border: 1px solid #EFEFEF; }
+        .msg-user { background: var(--primary-deep); color: white; align-self: flex-end; margin-left: auto; }
         
-        .send-btn {
-            background: var(--primary-deep);
-            color: white;
-            width: 40px;
-            height: 40px;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(74, 20, 140, 0.3);
-            transition: 0.2s;
-        }
-        .send-btn:hover { transform: scale(1.05); }
-
-        .msg {
-            padding: 10px 14px;
-            border-radius: 14px;
-            margin-bottom: 12px;
-            max-width: 85%;
-            font-size: 13.5px;
-            line-height: 1.5;
-            position: relative;
-            word-wrap: break-word;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-
-        .msg-bot {
-            background: white;
-            color: #333;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-            border: 1px solid #EFEFEF;
-        }
-
-        .msg-user {
-            background: var(--primary-deep);
-            color: white;
-            align-self: flex-end;
-            margin-left: auto;
-            border-bottom-right-radius: 4px;
-        }
-
-        /* --- TYPING INDICATOR --- */
-        .typing-indicator {
-            display: inline-flex;
-            gap: 4px;
-            padding: 5px 10px;
-            background: white;
-            border-radius: 15px;
-            width: fit-content;
-        }
-        .dot {
-            width: 6px;
-            height: 6px;
-            background: #B0B0B0;
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
-        .dot:nth-child(1) { animation-delay: -0.32s; }
-        .dot:nth-child(2) { animation-delay: -0.16s; }
-        
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-
-        /* --- PRODUCT CARD STYLES (For Bot HTML Responses) --- */
-        .bot-card {
-            background: #F3E5F5;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #E1BEE7;
-            margin-top: 5px;
-        }
-        .bot-btn {
-            background: var(--primary-deep);
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 11px;
-            cursor: pointer;
-            margin-top: 5px;
-        }
+        /* Typing Animation */
+        .typing-indicator { display: inline-flex; gap: 4px; padding: 5px 10px; background: white; border-radius: 15px; }
+        .dot { width: 6px; height: 6px; background: #B0B0B0; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+        .dot:nth-child(1) { animation-delay: -0.32s; } .dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
     </style>
     {% block styles %}{% endblock %}
 </head>
@@ -370,9 +165,10 @@
 
     <div class="sidebar">
         <div class="brand">
-            <i class="fas fa-prescription-bottle-alt"></i> PharmaTrust
+            <img src="{{ url_for('static', filename='college_logo.png') }}" alt="Logo" style="height: 40px; margin-right: 10px;">
+            
+            <span>PharmaTrust</span>
         </div>
-
         <div class="nav-links">
             <a href="/dashboard" class="nav-item">
                 <i class="fas fa-th-large"></i> Dashboard
@@ -385,8 +181,14 @@
             <a href="/admin/approvals" class="nav-item">
                 <i class="fas fa-users-cog"></i> Staff Management
             </a>
+            <a href="{{ url_for('audit_bp.audit_hub') }}" class="nav-item {{ 'active' if request.endpoint == 'audit_bp.audit_hub' else '' }}">
+                <i class="fas fa-shield-alt"></i> 
+                Audit Logs
+            </a>
             {% endif %}
-
+            <a href="{{ url_for('prescriptions_bp.list_prescriptions') }}" class="nav-item">
+                <i class="fas fa-file-prescription"></i> Prescriptions
+            </a>
             <a href="/sales/billing" class="nav-item">
                 <i class="fas fa-cash-register"></i> POS / Billing
             </a>
@@ -411,14 +213,12 @@
                     </div>
                     <span id="noti-badge">0</span>
                 </div>
-
                 <div id="noti-dropdown">
                     <div class="noti-header">
-                        <span>Notifications</span>
-                        <span style="font-size:11px; cursor:pointer;" onclick="toggleNoti()">✖</span>
+                        <span style="color:var(--primary-deep)">Notifications</span>
+                        <span style="font-size:12px; cursor:pointer; color:#999;" onclick="toggleNoti()">Close ✖</span>
                     </div>
-                    <div id="noti-list" style="max-height: 300px; overflow-y: auto;">
-                    </div>
+                    <div id="noti-list" style="max-height: 300px; overflow-y: auto;"></div>
                 </div>
             </div>
 
@@ -432,15 +232,12 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
-        <div
-            style="padding: 15px; margin-bottom: 20px; border-radius: 8px; font-weight: bold; 
-                   {% if category=='error' %}background:#FFEBEE; color:#C62828;{% else %}background:#E8F5E9; color:#2E7D32;{% endif %}">
+        <div style="padding: 15px; margin-bottom: 20px; border-radius: 8px; font-weight: bold; background:{% if category=='error' %}#FFEBEE; color:#C62828;{% else %}#E8F5E9; color:#2E7D32;{% endif %}">
             {{ message }}
         </div>
         {% endfor %}
         {% endif %}
         {% endwith %}
-
         {% block content %}{% endblock %}
     </div>
 
@@ -451,42 +248,28 @@
     <div class="bot-window" id="chatWindow">
         <div class="bot-header">
             <div style="display:flex; align-items:center; gap:8px;">
-                <i class="fas fa-robot"></i> 
-                <span>PharmaBot AI</span>
+                <i class="fas fa-robot"></i> <span>PharmaBot AI</span>
             </div>
-            <span onclick="toggleChat()" style="cursor:pointer; opacity:0.8;">
-                <i class="fas fa-times"></i>
-            </span>
+            <span onclick="toggleChat()" style="cursor:pointer; opacity:0.8;"><i class="fas fa-times"></i></span>
         </div>
         
         <div class="chat-body" id="chatBody">
-            <div class="msg msg-bot">
-                👋 Hi! I can help you check stock, find substitutes, or spot expiring items.
-            </div>
+            <div class="msg msg-bot">👋 Hi! I can help you check stock, find substitutes, or spot expiring items.</div>
         </div>
 
         <div class="chat-input-area">
-            <button class="icon-btn" onclick="startVoice()" title="Speak">
-                <i class="fas fa-microphone" id="micIcon"></i>
-            </button>
-
-            <input type="text" class="chat-input" id="userMsg" placeholder="Type or say..."
-                onkeypress="handleEnter(event)">
-            
-            <button class="send-btn" onclick="sendMsg()">
-                <i class="fas fa-paper-plane"></i>
-            </button>
+            <button class="icon-btn" onclick="startVoice()" title="Speak"><i class="fas fa-microphone" id="micIcon"></i></button>
+            <input type="text" class="chat-input" id="userMsg" placeholder="Type or say..." onkeypress="handleEnter(event)">
+            <button class="send-btn" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
     <script>
-        /* --- 1. CHATBOT LOGIC --- */
+        /* --- CHATBOT FUNCTIONS --- */
         function toggleChat() {
             const win = document.getElementById("chatWindow");
             win.style.display = win.style.display === "flex" ? "none" : "flex";
-            if (win.style.display === "flex") {
-                document.getElementById("userMsg").focus();
-            }
+            if(win.style.display === "flex") document.getElementById("userMsg").focus();
         }
 
         function handleEnter(e) { if (e.key === 'Enter') sendMsg(); }
@@ -496,173 +279,150 @@
             const txt = input.value.trim();
             if (!txt) return;
 
-            // 1. Add User Message
             addMsg(txt, "user");
             input.value = "";
-            input.focus();
-
-            // 2. Add "Typing..." Animation
             const loadingId = addTypingIndicator();
 
-            // 3. Call API
             fetch("/admin/chat_api", {
                 method: "POST", headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: txt })
             })
             .then(res => res.json())
             .then(data => {
-                // Remove loader and add real response (HTML supported)
                 removeMsg(loadingId);
                 addMsg(data.reply, "bot");
             })
-            .catch(() => {
+            .catch(err => {
                 removeMsg(loadingId);
-                addMsg("⚠️ My brain is offline. Check server logs.", "bot");
+                addMsg("⚠️ Connection Error. Ensure the server is running.", "bot");
+                console.error(err);
             });
         }
 
         function addMsg(txt, sender) {
             const div = document.createElement("div");
             div.className = `msg msg-${sender}`;
-            div.innerHTML = txt; // Use innerHTML to support Bold/Italic/Tables
+            div.innerHTML = txt;
             document.getElementById("chatBody").appendChild(div);
             scrollToBottom();
-            return div;
         }
 
         function addTypingIndicator() {
             const div = document.createElement("div");
             div.id = "typing-" + Date.now();
             div.className = "msg msg-bot";
-            div.style.background = "transparent";
-            div.style.border = "none";
-            div.style.padding = "0";
-            div.innerHTML = `
-                <div class="typing-indicator">
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                </div>
-            `;
+            div.style.background = "transparent"; div.style.border = "none";
+            div.innerHTML = `<div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
             document.getElementById("chatBody").appendChild(div);
             scrollToBottom();
             return div.id;
         }
 
-        function removeMsg(id) {
-            const el = document.getElementById(id);
-            if(el) el.remove();
-        }
+        function removeMsg(id) { const el = document.getElementById(id); if(el) el.remove(); }
+        function scrollToBottom() { const body = document.getElementById("chatBody"); body.scrollTop = body.scrollHeight; }
 
-        function scrollToBottom() {
-            const body = document.getElementById("chatBody");
-            body.scrollTop = body.scrollHeight;
-        }
-
-        /* --- 2. VOICE RECOGNITION (New) --- */
         function startVoice() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            
-            if (!SpeechRecognition) {
-                alert("Your browser does not support voice input. Try Chrome or Edge.");
-                return;
-            }
-
+            if (!SpeechRecognition) return alert("Browser does not support voice input.");
             const recognition = new SpeechRecognition();
             recognition.lang = 'en-US';
-            
-            // Visual Feedback
             const micIcon = document.getElementById("micIcon");
-            micIcon.style.color = "#D32F2F";
             micIcon.className = "fas fa-spinner fa-spin"; 
-
-            recognition.start();
-
-            recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;
-                document.getElementById("userMsg").value = transcript;
-                micIcon.className = "fas fa-microphone";
-                micIcon.style.color = "#888";
-                sendMsg(); // Auto-send
-            };
-
-            recognition.onerror = function(event) {
-                console.error("Voice Error:", event.error);
-                micIcon.className = "fas fa-microphone-slash"; 
-                setTimeout(() => {
-                    micIcon.className = "fas fa-microphone";
-                    micIcon.style.color = "#888";
-                }, 2000);
-            };
+            micIcon.style.color = "red";
             
-            recognition.onend = function() {
-                if (micIcon.className.includes("spinner")) {
-                     micIcon.className = "fas fa-microphone";
-                     micIcon.style.color = "#888";
-                }
+            recognition.start();
+            recognition.onresult = function(e) {
+                document.getElementById("userMsg").value = e.results[0][0].transcript;
+                micIcon.className = "fas fa-microphone"; micIcon.style.color = "#888";
+                sendMsg();
+            };
+            recognition.onerror = function() {
+                micIcon.className = "fas fa-microphone"; micIcon.style.color = "#888";
             };
         }
 
-        /* --- 3. HELPER FOR BOT BUTTONS --- */
-        function copyToBill(medicineName) {
-            // Placeholder: In real app, integrate with Billing Table
-            alert(`✅ Added ${medicineName} to the billing queue!`);
-        }
-
-        /* --- 4. NOTIFICATION LOGIC (Unchanged) --- */
+        /* --- NOTIFICATIONS FUNCTIONS (FIXED) --- */
         function toggleNoti() {
             const drop = document.getElementById("noti-dropdown");
             drop.style.display = drop.style.display === "block" ? "none" : "block";
+            // Load immediately on open
+            if(drop.style.display === "block") loadNotifications();
+        }
+
+        // Close when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.closest('.notification-box')) {
+                document.getElementById("noti-dropdown").style.display = "none";
+            }
         }
 
         function loadNotifications() {
             fetch('/notifications/get')
                 .then(res => res.json())
                 .then(data => {
+                    // 1. UPDATE BADGE
                     const badge = document.getElementById("noti-badge");
+                    badge.innerText = data.count || 0;
+                    badge.style.display = data.count > 0 ? "block" : "none";
+
+                    // 2. CLEAR LIST
                     const list = document.getElementById("noti-list");
+                    list.innerHTML = ""; 
 
-                    if (data.count > 0) {
-                        badge.innerText = data.count > 9 ? '9+' : data.count;
-                        badge.style.display = "block";
-                    } else {
-                        badge.style.display = "none";
+                    if (!data.alerts || data.alerts.length === 0) {
+                        list.innerHTML = `<div style="padding:20px; text-align:center; color:#999; font-size:13px;">No new notifications</div>`;
+                        return;
                     }
 
-                    if (data.alerts && data.alerts.length > 0) {
-                        let html = "";
-                        data.alerts.forEach(n => {
-                            let borderClass = 'border-' + (n.type || 'info');
-                            let icon = n.type === 'danger' ? '⚠️' : (n.type === 'success' ? '🎉' : 'ℹ️');
+                    // 3. POPULATE
+                    data.alerts.forEach(alert => {
+                        // Map colors
+                        let color = "#2196F3"; // Info Blue
+                        if (alert.type === 'danger' || alert.type === 'low_stock' || alert.type === 'expiry') color = "#D32F2F"; // Red
+                        if (alert.type === 'success' || alert.type === 'sale') color = "#388E3C"; // Green
+                        if (alert.type === 'warning') color = "#FF9800"; // Orange
+                        
+                        // --- NEW: Color for Milestones ---
+                        if (alert.type === 'milestone') color = "#6200EA"; // Deep Purple
+                        // ---------------------------------
 
-                            html += `
-                            <div class="noti-item ${borderClass}" onclick="markRead(${n.notification_id}, '${n.link}')">
-                                <div class="noti-msg">${icon} ${n.message}</div>
-                                <div class="noti-time">${new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                            </div>
+                        const item = document.createElement("div");
+                        item.className = "noti-item";
+                        item.style.borderLeft = `4px solid ${color}`;
+                        
+                        // Handle click
+                        item.onclick = function(e) {
+                            e.stopPropagation();
+                            markAsRead(alert.notification_id, alert.link);
+                        };
+
+                        const timeStr = new Date(alert.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                        item.innerHTML = `
+                            <div class="noti-msg">${alert.message}</div>
+                            <div class="noti-time">${timeStr}</div>
                         `;
-                        });
-                        list.innerHTML = html;
-                    } else {
-                        list.innerHTML = "<div style='padding:20px; text-align:center; color:#999; font-size:12px;'>No new alerts.</div>";
-                    }
+                        list.appendChild(item);
+                    });
                 })
-                .catch(err => console.log("Noti Error:", err));
+                .catch(err => console.error("Notify Error:", err));
         }
 
-        function markRead(id, link) {
-            fetch(`/notifications/read/${id}`, { method: 'POST' });
-            if (link && link !== '#' && link !== 'null') {
-                window.location.href = link;
-            }
-            toggleNoti(); // Close dropdown
-            setTimeout(loadNotifications, 500); // Refresh UI
+        function markAsRead(id, link) {
+            fetch(`/notifications/read/${id}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        if (link && link !== '#') window.location.href = link;
+                        else loadNotifications(); 
+                    }
+                });
         }
 
-        // Poll every 10 seconds
-        setInterval(loadNotifications, 10000);
-        loadNotifications(); // Initial load
+        // Auto-refresh every 30 seconds
+        setInterval(loadNotifications, 30000);
+        // Load once on start
+        loadNotifications();
     </script>
 </body>
-
 </html>

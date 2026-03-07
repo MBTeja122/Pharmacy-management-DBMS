@@ -4,6 +4,8 @@ from psycopg2.extras import RealDictCursor
 from datetime import datetime
 from routes.notification_routes import create_notification  # <--- IMPORTED NOTIFICATION HELPER
 
+
+
 sales_bp = Blueprint("sales_bp", __name__, url_prefix="/sales")
 
 # =========================================================
@@ -38,13 +40,18 @@ def customer_search(query):
 # =========================================================
 # 🔹 2. MEDICINE SEARCH & ALTERNATE FINDER
 # =========================================================
+# In billing_routes.py under section 🔹 2. MEDICINE SEARCH
+# =========================================================
+# 🔹 MEDICINE SEARCH (Fixed Naming for JS)
+# =========================================================
 @sales_bp.route("/medicine_search/<query>")
 def medicine_search(query):
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
+    # ADDED: is_otc to the SELECT statement
     cur.execute("""
-        SELECT medicine_id, brand_name, generic_name, quantity, mrp 
+        SELECT medicine_id, brand_name, generic_name, quantity, mrp, is_otc 
         FROM medicines 
         WHERE brand_name ILIKE %s OR generic_name ILIKE %s
         ORDER BY (brand_name ILIKE %s) DESC, brand_name ASC LIMIT 10
@@ -59,9 +66,14 @@ def medicine_search(query):
             "medicine_id": r['medicine_id'],
             "name": f"{r['brand_name']} ({r['generic_name']})",
             "mrp": float(r['mrp']),
-            "quantity": r['quantity']
+            "quantity": r['quantity'],
+            "is_otc": r['is_otc'] # ADDED: This field for the frontend
         })
     return jsonify(data)
+
+# =========================================================
+# 🔹 AI RECOMMENDATION (Added is_otc)
+# =========================================================
 
 @sales_bp.route("/check_alternates", methods=["POST"])
 def check_alternates():
@@ -78,12 +90,12 @@ def check_alternates():
             return jsonify({"status": "error", "message": "Item not found"})
 
         cur.execute("""
-            SELECT medicine_id, brand_name, generic_name, quantity, mrp, location
-            FROM medicines
-            WHERE generic_name ILIKE %s AND form = %s AND strength = %s
-            AND quantity > 0 AND medicine_id != %s
-            ORDER BY mrp ASC
-        """, (target['generic_name'], target['form'], target['strength'], medicine_id))
+        SELECT medicine_id, brand_name, generic_name, quantity, mrp, location, is_otc
+        FROM medicines
+        WHERE generic_name ILIKE %s AND form = %s AND strength = %s
+        AND quantity > 0 AND medicine_id != %s
+        ORDER BY mrp ASC
+    """, (target['generic_name'], target['form'], target['strength'], medicine_id))
         
         alternates = cur.fetchall()
         return jsonify({
@@ -105,52 +117,60 @@ def check_alternates():
 def get_recommendations():
     data = request.json
     customer_id = data.get("customer_id")
-    cart_items = data.get("medicine_ids", [])
+    # Ensure cart_items are integers to prevent SQL errors
+    cart_items = [int(i) for i in data.get("medicine_ids", []) if str(i).isdigit()]
+    
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     recommendations = []
-    seen_ids = set(map(int, cart_items))
+    seen_ids = set(cart_items)
 
     try:
-        # Market Basket
-        if cart_items:
-            cart_tuple = tuple(cart_items)
+        # --- LAYER 1: PERSONALIZED HISTORY (Shows when customer is selected) ---
+        if customer_id:
             cur.execute("""
-                SELECT m.medicine_id, m.brand_name, m.generic_name, m.mrp, COUNT(*) as score
-                FROM sale_items source
-                JOIN sale_items target ON source.sale_id = target.sale_id
-                JOIN medicines m ON target.medicine_id = m.medicine_id
-                WHERE source.medicine_id IN %s AND target.medicine_id NOT IN %s AND m.quantity > 0
-                GROUP BY m.medicine_id, m.brand_name, m.generic_name, m.mrp
-                ORDER BY score DESC LIMIT 3;
-            """, (cart_tuple, cart_tuple))
-            for r in cur.fetchall():
-                if r['medicine_id'] not in seen_ids:
-                    r['reason'] = "Frequently bought together"
-                    recommendations.append(r)
-                    seen_ids.add(r['medicine_id'])
-
-        # Personalized History
-        if customer_id and len(recommendations) < 5:
-            cur.execute("""
-                SELECT m.medicine_id, m.brand_name, m.generic_name, m.mrp, COUNT(*) as score
+                SELECT m.medicine_id, m.brand_name, m.generic_name, m.mrp, m.is_otc, m.quantity, COUNT(*) as score
                 FROM sales s
                 JOIN sale_items si ON s.sale_id = si.sale_id
                 JOIN medicines m ON si.medicine_id = m.medicine_id
-                WHERE s.customer_id = %s AND m.quantity > 0
-                GROUP BY m.medicine_id, m.brand_name, m.generic_name, m.mrp
+                WHERE s.customer_id = %s 
+                AND m.medicine_id NOT IN %s 
+                AND m.quantity > 0
+                GROUP BY m.medicine_id, m.brand_name, m.generic_name, m.mrp, m.is_otc, m.quantity
                 ORDER BY score DESC LIMIT 3;
-            """, (customer_id,))
+            """, (customer_id, tuple(cart_items) if cart_items else (0,)))
+            
             for r in cur.fetchall():
-                if r['medicine_id'] not in seen_ids:
-                    r['reason'] = "Buy Again"
-                    recommendations.append(r)
-                    seen_ids.add(r['medicine_id'])
+                r['reason'] = "Buy Again (History)"
+                r['mrp'] = float(r['mrp'])
+                recommendations.append(r)
+                seen_ids.add(r['medicine_id'])
 
+        # --- LAYER 2: MARKET BASKET (Shows when items are in cart) ---
+        if cart_items:
+            cur.execute("""
+                SELECT m.medicine_id, m.brand_name, m.generic_name, m.mrp, m.is_otc, m.quantity, COUNT(*) as score
+                FROM sale_items source
+                JOIN sale_items target ON source.sale_id = target.sale_id
+                JOIN medicines m ON target.medicine_id = m.medicine_id
+                WHERE source.medicine_id IN %s 
+                AND target.medicine_id NOT IN %s 
+                AND m.quantity > 0
+                GROUP BY m.medicine_id, m.brand_name, m.generic_name, m.mrp, m.is_otc, m.quantity
+                ORDER BY score DESC LIMIT 3;
+            """, (tuple(cart_items), tuple(seen_ids)))
+            
+            for r in cur.fetchall():
+                r['reason'] = "Frequently Bought Together"
+                r['mrp'] = float(r['mrp'])
+                recommendations.append(r)
+
+    except Exception as e:
+        print(f"SQL Recommendation Error: {e}")
     finally:
         conn.close()
+        
     return jsonify(recommendations)
-
 # =========================================================
 # 🔹 4. TRANSACTION SUBMISSION (With Notifications)
 # =========================================================

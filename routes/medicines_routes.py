@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, redirect, url_for, flash, jsonify
+from flask import Blueprint, request, render_template, redirect, url_for, flash, jsonify ,session
 from datetime import datetime
 from db_config import get_db_connection
 from psycopg2.extras import RealDictCursor
@@ -43,6 +43,7 @@ def generate_batch_no():
 
     return f"BAT{today}{new_number:03d}"
 # 🔹 Add Medicine Page Route
+
 @medicine_bp.route('/add', methods=["GET", "POST"])
 def add_medicine():
     conn = get_db_connection()
@@ -50,50 +51,69 @@ def add_medicine():
 
     cur.execute("SELECT supplier_id, name FROM suppliers ORDER BY name ASC")
     suppliers = cur.fetchall()
-    print(suppliers)
     batch_no = generate_batch_no()
 
     if request.method == "POST":
-        data = (
-            request.form["generic_name"],
-            request.form["brand_name"],
-            request.form["form"],
-            request.form["strength"],
-            request.form["primary_ingredient"],
-            request.form["description"],
-            request.form["health_condition"],
-            request.form.get("is_otc") == "on",
-            request.form["batch_no"], 
-            request.form["mfg_date"],
-            request.form["expiry_date"],
-            request.form["quantity"],
-            request.form["cost_price"],
-            request.form["mrp"],
-            request.form["supplier_id"],
-            request.form["reorder_level"],
-            request.form["low_stock_threshold"],
-            request.form["location"]
-        )
+        try:
+            # 1. Collect form data
+            generic_name = request.form["generic_name"]
+            brand_name = request.form["brand_name"]
+            quantity = int(request.form["quantity"])
+            cost_price = float(request.form["cost_price"])
+            supplier_id = request.form["supplier_id"]
+            pharmacist_id = session.get("pharmacist_id") # Get current logged-in user
 
-        cur.execute("""
-            INSERT INTO medicines (
-                generic_name, brand_name, form, strength, primary_ingredient,
-                description, health_condition, is_otc, batch_no, mfg_date, expiry_date,
-                quantity, cost_price, mrp, supplier_id, reorder_level,
-                low_stock_threshold, location
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, data)
+            # 2. Insert into medicines (Existing Logic)
+            cur.execute("""
+                INSERT INTO medicines (
+                    generic_name, brand_name, form, strength, primary_ingredient,
+                    description, health_condition, is_otc, batch_no, mfg_date, expiry_date,
+                    quantity, cost_price, mrp, supplier_id, reorder_level,
+                    low_stock_threshold, location
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING medicine_id
+            """, (
+                generic_name, brand_name, request.form["form"], request.form["strength"],
+                request.form["primary_ingredient"], request.form["description"],
+                request.form["health_condition"], request.form.get("is_otc") == "on",
+                request.form["batch_no"], request.form["mfg_date"], request.form["expiry_date"],
+                quantity, cost_price, request.form["mrp"], supplier_id,
+                request.form["reorder_level"], request.form["low_stock_threshold"],
+                request.form["location"]
+            ))
+            new_medicine_id = cur.fetchone()['medicine_id']
 
-        conn.commit()
-        conn.close()
+            # 3. Create Purchase Header (New Logic)
+            total_amount = quantity * cost_price
+            cur.execute("""
+                INSERT INTO purchases (supplier_id, pharmacist_id, total_amount, status)
+                VALUES (%s, %s, %s, 'Completed')
+                RETURNING purchase_id
+            """, (supplier_id, pharmacist_id, total_amount))
+            new_purchase_id = cur.fetchone()['purchase_id']
 
-        flash("Medicine added successfully!")
-        return redirect(url_for("medicine.add_medicine"))
+            # 4. Create Purchase Item Detail (New Logic)
+            cur.execute("""
+                INSERT INTO purchase_items (purchase_id, medicine_id, batch_no, expiry_date, quantity, unit_cost)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (
+                new_purchase_id, new_medicine_id, request.form["batch_no"],
+                request.form["expiry_date"], quantity, cost_price
+            ))
+
+            conn.commit()
+            flash(f"Medicine and Purchase Record added successfully!")
+            
+        except Exception as e:
+            conn.rollback()
+            flash(f"Error: {str(e)}", "error")
+        finally:
+            conn.close()
+            return redirect(url_for("medicine.add_medicine"))
 
     conn.close()
     return render_template("add_medicine.html", suppliers=suppliers, batch_no=batch_no)
-
 
 # 🔹 Independent Auto-Suggestion Route
 @medicine_bp.route("/suggest/<category>")
@@ -143,50 +163,67 @@ def edit_medicine(medicine_id):
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     if request.method == "POST":
+        def clean_val(val): return val if val and val.strip() != "" else None
+
+        # Collect data for updating both tables
+        batch_no = request.form["batch_no"]
+        expiry_date = request.form["expiry_date"]
+        cost_price = clean_val(request.form["cost_price"])
+        quantity = request.form["quantity"]
+
         data = (
-            request.form["generic_name"],
-            request.form["brand_name"],
-            request.form["form"],
-            request.form["strength"],
-            request.form["primary_ingredient"],
-            request.form["description"],
-            request.form["health_condition"],
-            request.form.get("is_otc") == "on",
-            request.form["batch_no"],
-            request.form["mfg_date"],
-            request.form["expiry_date"],
-            request.form["quantity"],
-            request.form["cost_price"],
-            request.form["mrp"],
-            request.form["supplier_id"],
-            request.form["reorder_level"],
-            request.form["low_stock_threshold"],
-            request.form["location"],
+            request.form["generic_name"], request.form["brand_name"], 
+            request.form["form"], request.form["strength"],
+            request.form["primary_ingredient"], request.form["description"], 
+            request.form["health_condition"], request.form.get("is_otc") == "on",
+            batch_no, clean_val(request.form["mfg_date"]), expiry_date,
+            quantity, cost_price, request.form["mrp"], 
+            request.form["supplier_id"], request.form["reorder_level"], 
+            request.form["low_stock_threshold"], request.form["location"],
             medicine_id
         )
 
-        cur.execute("""
-            UPDATE medicines SET
-                generic_name=%s, brand_name=%s, form=%s, strength=%s,
-                primary_ingredient=%s, description=%s, health_condition=%s,
-                is_otc=%s, batch_no=%s, mfg_date=%s, expiry_date=%s,
-                quantity=%s, cost_price=%s, mrp=%s, supplier_id=%s,
-                reorder_level=%s, low_stock_threshold=%s, location=%s,
-                updated_at=CURRENT_TIMESTAMP
-            WHERE medicine_id=%s
-        """, data)
+        try:
+            # 1. Update the Medicine Table (Existing Logic)
+            cur.execute("""
+                UPDATE medicines SET
+                    generic_name=%s, brand_name=%s, form=%s, strength=%s,
+                    primary_ingredient=%s, description=%s, health_condition=%s,
+                    is_otc=%s, batch_no=%s, mfg_date=%s, expiry_date=%s,
+                    quantity=%s, cost_price=%s, mrp=%s, supplier_id=%s,
+                    reorder_level=%s, low_stock_threshold=%s, location=%s,
+                    updated_at=CURRENT_TIMESTAMP
+                WHERE medicine_id=%s
+            """, data)
 
-        conn.commit()
-        cur.close()
-        conn.close()
-        flash("Medicine Updated Successfully!")
-        return redirect(url_for('medicine.list_medicines'))
+            # 2. Update the associated Purchase Item (New Sync Logic)
+            # This ensures your Purchase History stays accurate if you edit a batch
+            cur.execute("""
+                UPDATE purchase_items SET
+                    batch_no=%s, expiry_date=%s, unit_cost=%s, quantity=%s
+                WHERE medicine_id=%s
+            """, (batch_no, expiry_date, cost_price, quantity, medicine_id))
 
-    # Fetch selected medicine
+            conn.commit()
+            flash("Medicine and Procurement Records Updated Successfully!")
+        except Exception as e:
+            conn.rollback()
+            flash(f"Error updating records: {str(e)}", "error")
+        finally:
+            cur.close()
+            conn.close()
+            return redirect(url_for('medicine.list_medicines'))
+
+    # --- GET REQUEST LOGIC (Remains exactly the same) ---
     cur.execute("SELECT * FROM medicines WHERE medicine_id = %s", (medicine_id,))
     medicine = cur.fetchone()
 
-    # For Supplier dropdown
+    if medicine:
+        if medicine.get('mfg_date'):
+            medicine['mfg_date'] = medicine['mfg_date'].strftime('%Y-%m-%d')
+        if medicine.get('expiry_date'):
+            medicine['expiry_date'] = medicine['expiry_date'].strftime('%Y-%m-%d')
+
     cur.execute("SELECT supplier_id, name FROM suppliers ORDER BY name")
     suppliers = cur.fetchall()
 

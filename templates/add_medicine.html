@@ -4,7 +4,6 @@
 
 {% block styles %}
 <style>
-    /* --- THEME VARIABLES --- */
     :root {
         --primary-deep: #4A148C;
         --primary-light: #7B1FA2;
@@ -15,11 +14,10 @@
         --input-border: #D1C4E9;
     }
 
-    /* CONTAINER: Wider for 3 Columns */
     .form-container {
         background: var(--card-surface);
         width: 100%;
-        max-width: 1100px; /* Increased width */
+        max-width: 1100px;
         padding: 40px;
         border-radius: 16px;
         box-shadow: 0 10px 30px rgba(74, 20, 140, 0.15);
@@ -36,87 +34,94 @@
         margin-bottom: 30px;
     }
 
-    /* GRID SYSTEM: 3 Columns */
     form {
         display: grid;
-        grid-template-columns: repeat(3, 1fr); /* 3 Equal Columns */
-        gap: 25px; /* Spacing between inputs */
-        align-items: center; /* Align checkboxes properly */
+        grid-template-columns: repeat(3, 1fr);
+        /* gap: 25px ensures equal horizontal and vertical spacing between all grid items */
+        gap: 25px; 
     }
 
-    /* Helper to span all 3 columns */
     .full-width { grid-column: 1 / -1; }
 
-    /* Input Styling */
-    .form-group { position: relative; }
+    .form-group { 
+        position: relative; 
+        /* Ensures every box starts with the exact same height */
+        height: 54px; 
+    }
 
+    /* Standardized label for ALL fields including dates */
     label {
-        position: absolute; left: 15px; top: 15px;
-        color: var(--text-muted); font-size: 14px;
-        transition: 0.2s; pointer-events: none;
+        position: absolute; 
+        left: 15px; 
+        top: 15px;
+        color: var(--text-muted); 
+        font-size: 14px;
+        transition: 0.2s; 
+        pointer-events: none;
         background: transparent;
+        z-index: 1;
     }
 
     input, textarea, select {
-        width: 100%; padding: 14px;
+        width: 100%; 
+        height: 100%; /* Fill the 54px form-group height */
+        padding: 12px 15px;
         border: 2px solid var(--input-border);
-        border-radius: 8px; font-size: 14px;
-        color: var(--text-main); background: #FAFAFA;
+        border-radius: 8px; 
+        font-size: 14px;
+        color: var(--text-main); 
+        background: #FAFAFA;
         transition: 0.3s;
+        box-sizing: border-box;
     }
 
+    textarea { height: auto; min-height: 80px; }
+    .form-group.full-width { height: auto; }
+
     input:focus, textarea:focus, select:focus,
-    input:not(:placeholder-shown), textarea:not(:placeholder-shown), select:valid {
+    input:not(:placeholder-shown), textarea:not(:placeholder-shown), select:not([value=""]):valid {
         border-color: var(--primary-light);
         background: #FFF;
-        box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.1);
         outline: none;
     }
 
-    /* Floating Label Logic */
+    /* Floating Label Logic - now applies to dates too */
     input:focus ~ label, input:not(:placeholder-shown) ~ label,
     textarea:focus ~ label, textarea:not(:placeholder-shown) ~ label,
-    select:focus ~ label, select:valid ~ label {
-        top: -10px; left: 10px; font-size: 12px;
-        color: var(--primary-light); font-weight: bold;
-        background: var(--card-surface); padding: 0 5px;
+    select:focus ~ label, select:valid ~ label,
+    input[type="date"] ~ label {
+        top: -10px; 
+        left: 10px; 
+        font-size: 12px;
+        color: var(--primary-light); 
+        font-weight: bold;
+        background: var(--card-surface); 
+        padding: 0 5px;
     }
 
-    input::placeholder, textarea::placeholder { color: transparent; }
-
-    /* Checkbox Styling */
-    .checkbox-inline {
-        display: flex; align-items: center; 
-        height: 100%; /* Match height of other inputs */
-        padding-left: 5px;
+    /* Checkbox Alignment Fix */
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        border: 2px solid var(--input-border);
+        border-radius: 8px;
+        padding: 0 15px;
+        background: #FAFAFA;
+        height: 54px; 
     }
-    .checkbox-inline label { position: static; margin-left: 10px; font-size: 15px; color: var(--text-main); font-weight: 500; }
-    .checkbox-inline input { width: 22px; height: 22px; accent-color: var(--primary-deep); cursor: pointer; }
+    .checkbox-group input { width: 20px; height: 20px; margin-right: 10px; }
+    .checkbox-group label { position: static; font-size: 14px; color: var(--text-main); pointer-events: auto; padding: 0; }
 
-    /* Buttons */
     .btn-save {
         background: linear-gradient(135deg, var(--primary-deep), var(--primary-light));
         color: white; border: none; padding: 16px;
         border-radius: 8px; font-size: 16px; font-weight: bold;
-        cursor: pointer; transition: 0.3s; margin-top: 20px;
+        cursor: pointer; transition: 0.3s; margin-top: 10px;
     }
-    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(74, 20, 140, 0.4); }
 
-    .back-link {
-        text-align: center; display: block; margin-top: 20px;
-        color: var(--text-muted); text-decoration: none; font-weight: 600;
-    }
-    .back-link:hover { color: var(--primary-light); }
-
-    datalist { display: none; }
-
-    /* RESPONSIVE BREAKPOINTS */
-    @media(max-width: 1024px) { 
-        form { grid-template-columns: 1fr 1fr; } /* Tablet: 2 Cols */
-    }
-    @media(max-width: 600px) { 
-        form { grid-template-columns: 1fr; } /* Mobile: 1 Col */
-    }
+    /* Tablet/Mobile logic */
+    @media(max-width: 1024px) { form { grid-template-columns: 1fr 1fr; } }
+    @media(max-width: 600px) { form { grid-template-columns: 1fr; } }
 </style>
 {% endblock %}
 
@@ -176,20 +181,23 @@
             </div>
 
             <div class="form-group">
-                <input type="text" name="batch_no" id="batch_no" value="{{ batch_no }}" readonly style="background: #F0F0F0; cursor: not-allowed;">
+                <input type="text" name="batch_no" id="batch_no" value="{{ batch_no }}" readonly style="background: #F0F0F0; cursor: not-allowed;" placeholder=" ">
                 <label for="batch_no">Batch No (Auto)</label>
             </div>
 
             <div class="form-group">
-                <input type="date" name="mfg_date" id="mfg_date">
-                <label for="mfg_date" style="position:static; font-size:12px; color:var(--primary-light); margin-left:5px;">Manufacturing Date</label>
+            <input type="date" name="mfg_date" id="mfg_date" placeholder=" ">
+            <label for="mfg_date">Manufacturing Date</label>
             </div>
 
             <div class="form-group">
-                <input type="date" name="expiry_date" id="expiry_date" required>
-                <label for="expiry_date" style="position:static; font-size:12px; color:var(--primary-light); margin-left:5px;">Expiry Date *</label>
+                <input type="date" name="expiry_date" id="expiry_date" required placeholder=" ">
+                <label for="expiry_date">Expiry Date *</label>
             </div>
-
+            <div class="checkbox-group">
+                <input type="checkbox" name="is_otc" id="is_otc">
+                <label for="is_otc">OTC (No Prescription Needed)</label>
+            </div>
             <div class="form-group">
                 <input type="number" name="quantity" id="quantity" placeholder=" " required>
                 <label for="quantity">Quantity (Stock) *</label>
@@ -228,11 +236,6 @@
             <div class="form-group">
                 <input type="text" name="location" id="location" placeholder=" " required>
                 <label for="location">Storage Location *</label>
-            </div>
-
-            <div class="form-group checkbox-inline">
-                <input type="checkbox" name="is_otc" id="is_otc">
-                <label for="is_otc">OTC (No Prescription Needed)</label>
             </div>
 
             <button type="submit" class="btn-save full-width">Save & Register Stock</button>

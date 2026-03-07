@@ -1,6 +1,8 @@
-from flask import Flask  , render_template, session, redirect, url_for
+from flask import Flask, render_template, session, redirect, url_for
 from datetime import timedelta
 import os
+import socket
+
 from routes.home_routes import home_bp
 from routes.create_account import cre_acc_bp
 from routes.medicines_routes import medicine_bp
@@ -14,10 +16,13 @@ from routes.dashboard_routes import dash_bp1
 from routes.chatbot_routes import chatbot_bp
 from routes.notification_routes import notify_bp
 from routes.prescription_routes import prescriptions_bp
+from routes.audit_routes import audit_bp
+
 app = Flask(__name__)
 app.secret_key = "PHARMA_SECRET_KEY_123"
 app.permanent_session_lifetime = timedelta(minutes=30)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
+
 app.register_blueprint(home_bp)
 app.register_blueprint(cre_acc_bp)
 app.register_blueprint(medicine_bp)
@@ -31,19 +36,29 @@ app.register_blueprint(dash_bp1)
 app.register_blueprint(chatbot_bp)
 app.register_blueprint(notify_bp)
 app.register_blueprint(prescriptions_bp, url_prefix='/prescriptions')
-
-
+app.register_blueprint(audit_bp)
 @app.route("/")
 def index():
-    # Redirect homepage to the upload form
     return redirect(url_for('prescriptions_bp.show_upload_form'))
 
+def get_local_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
 if __name__ == "__main__":
+    ip = get_local_ip()
+    port = 5000
+    
     print("\n-------------------------------------------------------")
-    print("🚀 PHARMA SERVER STARTED")
-    print("📡 Mode: Offline Hotspot / LAN")
+    print("🚀 PHARMA SERVER STARTED (HTTP Mode)")
+    print(f"📡 Mobile Upload Link: http://{ip}:{port}/prescriptions/remote_upload")
     print("-------------------------------------------------------")
     
-    # host='0.0.0.0' -> Listen for external connections (Phone)
-    # ssl_context='adhoc' -> Enable HTTPS (Required for Camera access)
-    app.run(debug=True, host='0.0.0.0', port=5000, ssl_context='adhoc')
+    # SSL Removed! Now running on standard HTTP.
+    app.run(debug=True, host='0.0.0.0', port=port)

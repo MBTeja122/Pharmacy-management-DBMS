@@ -103,3 +103,24 @@ def delete_employee(user_id):
         conn.close()
 
     return redirect(url_for("admin_bp.list_approvals"))
+@admin_bp.route("/purchase_history")
+def purchase_history():
+    # Security: Only admins can see procurement history
+    if session.get("role") != "Admin":
+        return redirect(url_for("dash.load"))
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # UPDATED: Ordering by purchase_id DESC to show latest entries first
+    cur.execute("""
+        SELECT p.purchase_id, p.total_amount, p.status, p.created_at, s.name as supplier_name
+        FROM purchases p
+        LEFT JOIN suppliers s ON p.supplier_id = s.supplier_id
+        ORDER BY p.purchase_id DESC
+    """)
+    history = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    return render_template("purchase_history.html", history=history)

@@ -1,56 +1,33 @@
 {% extends "layout.html" %}
-{% block title %}Scan to Upload | PharmaTrust{% endblock %}
-
 {% block content %}
-<div style="text-align:center; margin-top: 50px;">
-    <div style="background:white; display:inline-block; padding:40px; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+<div style="text-align: center; padding: 50px;">
+    <div style="background: white; padding: 40px; border-radius: 20px; display: inline-block; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+        <h2 style="color: #00695c; margin-bottom: 10px;">📲 Connect Mobile</h2>
+        <p style="color: #666; margin-bottom: 30px;">Scan to upload from Gallery</p>
         
-        <h2 style="color:#4A148C;">📱 Mobile Upload</h2>
-        <p>Scan this QR code with your phone.</p>
-
-        <div style="margin: 20px 0;">
-            <img src="{{ url_for('prescriptions_bp.generate_qr', url=mobile_url) }}" style="border: 8px solid #F3E5F5; border-radius:10px; width:250px;">
+        <img src="{{ url_for('prescriptions_bp.generate_qr', url=mobile_url) }}" style="width: 250px; border-radius: 10px; border: 2px solid #b2dfdb;">
+        
+        <div style="margin-top: 30px;">
+            <div class="spinner" style="display:inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #00695c; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <span style="color: #00695c; font-weight: bold; margin-left: 10px;">Waiting for upload...</span>
         </div>
-
-        <div id="status-box" style="padding:15px; background:#FFF3E0; color:#E65100; border-radius:8px; font-weight:bold;">
-            <i class="fas fa-spinner fa-spin"></i> Waiting for scan...
-        </div>
-
-        <p style="font-size:12px; color:#999; margin-top:20px;">
-            <i class="fas fa-link"></i> Link: {{ mobile_url }}
-        </p>
-
-        <a href="{{ url_for('prescriptions_bp.show_upload_form') }}" style="display:block; margin-top:20px; color:#4A148C; text-decoration:none; font-weight:bold;">
-            ← Back to Manual Upload
-        </a>
+        
+        <p style="margin-top:20px; font-size:12px; color:#999; font-family:monospace;">{{ mobile_url }}</p>
     </div>
 </div>
 
-<script>
-    const token = "{{ token }}";
-    const statusBox = document.getElementById("status-box");
+<style>@keyframes spin {0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); }}</style>
 
-    // Poll the server every 1.5 seconds to see if the phone finished
-    const interval = setInterval(() => {
-        fetch(`/prescriptions/check_status/${token}`)
-        .then(res => res.json())
+<script>
+    setInterval(function() {
+        fetch("{{ url_for('prescriptions_bp.check_status', token=token) }}")
+        .then(response => response.json())
         .then(data => {
             if (data.status === "done") {
-                clearInterval(interval);
-                statusBox.style.background = "#E8F5E9";
-                statusBox.style.color = "#2E7D32";
-                statusBox.innerHTML = `✅ Received: ${data.filename}`;
-                
-                // Redirect back to the main form after 1 second
-                setTimeout(() => {
-                    window.location.href = "{{ url_for('prescriptions_bp.show_upload_form') }}";
-                }, 1500);
-            } 
-            else if (data.status === "expired") {
-                clearInterval(interval);
-                statusBox.innerHTML = "❌ Session Expired. Please refresh.";
+                // REDIRECT TO REVIEW PAGE
+                window.location.href = "/prescriptions/review/" + data.filename;
             }
         });
-    }, 1500);
+    }, 2000);
 </script>
 {% endblock %}

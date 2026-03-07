@@ -7,4 +7,7 @@ pandas
 matplotlib 
 seaborn 
 spacy
-
+fuzzywuzzy 
+python-Levenshtein 
+textblob 
+tracery

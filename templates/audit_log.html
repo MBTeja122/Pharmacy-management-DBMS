@@ -1,0 +1,182 @@
+{% extends "layout.html" %}
+
+{% block title %}Audit Logs | PharmaTrust{% endblock %}
+
+{% block styles %}
+<style>
+    /* Main Container Padding */
+    .audit-container { padding: 30px; }
+    
+    /* White Card Wrapper */
+    .audit-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        padding: 30px;
+        min-height: 80vh;
+    }
+
+    /* Header Row: Title on Left, Search on Right */
+    .header-row {
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #F4F7FE;
+    }
+
+    h2 { margin: 0; color: #2B3674; font-size: 24px; font-weight: 700; }
+
+    /* FIXED SEARCH BAR STYLING */
+    .search-wrapper {
+        display: flex;
+        align-items: center;
+        background: #F4F7FE; /* Light blue/grey background */
+        border: 1px solid #E0E0E0;
+        border-radius: 30px; /* Pill shape */
+        padding: 8px 20px;
+        width: 320px;
+        transition: 0.3s;
+    }
+
+    .search-wrapper:focus-within {
+        border-color: #6200EA;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(98, 0, 234, 0.1);
+    }
+
+    .search-icon {
+        color: #888;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .search-input {
+        border: none;
+        background: transparent;
+        outline: none;
+        width: 100%;
+        font-size: 14px;
+        color: #333;
+        font-family: inherit;
+    }
+
+    /* Section Title (Recent Transactions) */
+    .section-label { 
+        font-size: 14px; font-weight: 600; color: #888; 
+        text-transform: uppercase; letter-spacing: 0.5px;
+        margin-bottom: 15px; 
+    }
+    
+    /* Table Styles */
+    .audit-table { width: 100%; border-collapse: collapse; }
+    
+    .audit-table thead { 
+        background: #FAFAFA; 
+        color: #5E6E82; 
+        font-size: 13px; 
+        font-weight: 700;
+        text-transform: uppercase; 
+        border-bottom: 2px solid #eee;
+    }
+    
+    .audit-table th, .audit-table td { padding: 16px 10px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+    .audit-table tr:last-child td { border-bottom: none; }
+    .audit-table tr:hover { background: #f8f9ff; }
+    
+    /* Badges */
+    .badge { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; }
+    .badge-cash { background: #E6F4EA; color: #1E8E3E; }
+    .badge-upi { background: #E8F0FE; color: #1967D2; }
+    .badge-card { background: #FFF8E1; color: #F57F17; }
+    
+    .timestamp { color: #555; font-size: 13px; font-weight: 500; }
+    .user-icon { width: 24px; text-align: center; display: inline-block; margin-right: 6px; }
+
+    .no-results { display: none; text-align: center; padding: 50px; color: #999; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="audit-container">
+
+    <div class="audit-card">
+        
+        <div class="header-row">
+            <h2>🛡️ Master Audit Log</h2>
+            
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="auditSearch" onkeyup="filterAudit()" placeholder="Search logs...">
+            </div>
+        </div>
+
+        <div class="section-label">Recent Transactions</div>
+        
+        <table class="audit-table" id="auditTable">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Invoice</th>
+                    <th>Staff (Sold By)</th>
+                    <th>Customer (Sold To)</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in sales_logs %}
+                <tr class="audit-row">
+                    <td class="timestamp">{{ sale.created_at.strftime('%d %b, %I:%M %p') }}</td>
+                    <td><span style="font-family:monospace; font-weight:bold; color:#333;">#{{ sale.invoice_no }}</span></td>
+                    <td>
+                        <span class="user-icon" style="color:#6200EA;"><i class="fas fa-user-md"></i></span>
+                        {{ sale.staff_name or 'Unknown' }}
+                    </td>
+                    <td>
+                        <span class="user-icon" style="color:#555;"><i class="fas fa-user"></i></span>
+                        {{ sale.customer_name or 'Walk-in' }}
+                    </td>
+                    <td><b>₹{{ sale.total_amount }}</b></td>
+                    <td>
+                        <span class="badge badge-{{ 'upi' if 'UPI' in sale.payment_method else ('card' if 'Card' in sale.payment_method else 'cash') }}">
+                            {{ sale.payment_method }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" style="text-align:center; padding:40px; color:#999;">No records found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div id="noResultsMsg" class="no-results">
+            <div style="font-size: 40px; margin-bottom: 10px; opacity: 0.3;">🔍</div>
+            No matching records found
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function filterAudit() {
+        let input = document.getElementById("auditSearch");
+        let filter = input.value.toUpperCase();
+        let table = document.getElementById("auditTable");
+        let tr = table.getElementsByClassName("audit-row");
+        let hasVisibleRows = false;
+
+        for (let i = 0; i < tr.length; i++) {
+            let rowText = tr[i].textContent || tr[i].innerText;
+            if (rowText.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+                hasVisibleRows = true;
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+        document.getElementById("noResultsMsg").style.display = hasVisibleRows ? "none" : "block";
+    }
+</script>
+{% endblock %}

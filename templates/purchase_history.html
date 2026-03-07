@@ -1,0 +1,134 @@
+{% extends "layout.html" %}
+
+{% block title %}Purchase History | PharmaTrust{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        --primary-blue: #2B3674;
+        --pos-purple: #6200EA;
+        --success-green: #05cd99;
+        --bg-light: #F4F7FE;
+    }
+
+    /* Page Layout Fixes */
+    .procurement-container { padding: 20px; }
+    
+    .breadcrumb-nav { color: #707EAE; font-size: 14px; margin-bottom: 5px; }
+    .page-main-title { color: var(--primary-blue); font-weight: 700; font-size: 24px; margin-bottom: 30px; }
+
+    /* Clean Card UI */
+    .history-card { 
+        background: white; 
+        border-radius: 20px; 
+        padding: 24px; 
+        box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.03);
+        border: none;
+    }
+
+    /* Table Formatting (Fixes Overlap) */
+    .table-procurement { width: 100%; border-collapse: collapse; }
+    
+    .table-procurement thead th {
+        color: #A3AED0;
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 600;
+        padding: 12px 15px;
+        border-bottom: 1px solid #F1F4F9;
+        text-align: left;
+    }
+
+    .table-procurement tbody td {
+        padding: 20px 15px;
+        color: var(--primary-blue);
+        font-weight: 600;
+        border-bottom: 1px solid #F1F4F9;
+        vertical-align: middle;
+    }
+
+    /* Visual Accents */
+    .supplier-box { display: flex; align-items: center; gap: 12px; }
+    .icon-wrapper {
+        width: 32px; height: 32px; 
+        background: #F4F7FE; 
+        border-radius: 8px; 
+        display: flex; align-items: center; justify-content: center;
+        color: var(--pos-purple);
+    }
+
+    .status-pill {
+        background: #e6f9f4;
+        color: var(--success-green);
+        padding: 6px 16px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .action-link {
+        color: var(--pos-purple);
+        background: #F4F7FE;
+        padding: 8px;
+        border-radius: 8px;
+        transition: 0.2s;
+    }
+    .action-link:hover { background: var(--pos-purple); color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="procurement-container">
+    <div class="breadcrumb-nav">Pages / Procurement</div>
+    <h2 class="page-main-title">Purchase History</h2>
+
+    <div class="history-card">
+        <div class="table-responsive">
+            <table class="table-procurement">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Timestamp</th>
+                        <th>Supplier</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th style="text-align: center;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for purchase in history %}
+                    <tr>
+                        <td style="color: #707EAE;">#{{ purchase.purchase_id }}</td>
+                        <td>{{ purchase.created_at.strftime('%d %b, %H:%M') }}</td>
+                        <td>
+                            <div class="supplier-box">
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-building"></i>
+                                </div>
+                                <span>{{ purchase.supplier_name }}</span>
+                            </div>
+                        </td>
+                        <td>₹{{ "{:,.2f}".format(purchase.total_amount) }}</td>
+                        <td>
+                            <span class="status-pill">{{ purchase.status }}</span>
+                        </td>
+                        <td style="text-align: center;">
+                            <a href="#" class="action-link" title="View Invoice">
+                                <i class="fas fa-file-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 50px; color: #A3AED0;">
+                            <i class="fas fa-box-open fa-3x mb-3 d-block" style="opacity: 0.3;"></i>
+                            No procurement records found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

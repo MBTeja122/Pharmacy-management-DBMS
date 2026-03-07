@@ -4,59 +4,47 @@ import os
 import qrcode
 import uuid
 import socket
-import time
 from io import BytesIO
 from datetime import datetime
 from werkzeug.utils import secure_filename
 
-# --- 1. Define Blueprint ---
 prescriptions_bp = Blueprint('prescriptions_bp', __name__)
 
-# --- 2. Database & Config ---
+# --- CONFIG ---
 client = MongoClient("mongodb://localhost:27017/")
 db = client["pharmacy_db"]
 collection = db["prescriptions"]
-
 UPLOAD_FOLDER = 'static/uploads/prescriptions'
-# Note: We use current_app to get the absolute path later
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'heic'}
 
 active_sessions = {}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# --- 3. Offline Hotspot IP Logic ---
-def get_offline_ip():
-    """Finds the Laptop's Hotspot IP (usually 192.168.137.1)"""
+def get_wifi_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        hostname = socket.gethostname()
-        all_ips = socket.gethostbyname_ex(hostname)[2]
-        
-        # Priority 1: Windows Hotspot Default
-        if "192.168.137.1" in all_ips: return "192.168.137.1"
-        
-        # Priority 2: Any 192.168.x.x (excluding localhost)
-        for ip in all_ips:
-            if ip.startswith("192.168.") and ip != "127.0.0.1": return ip
-            
-        # Priority 3: Fallback to 172.x (Mobile Hotspots)
-        for ip in all_ips:
-            if ip.startswith("172."): return ip
-            
-    except: pass
-    return "192.168.137.1" # Default fallback
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+    except:
+        ip = "127.0.0.1"
+    finally:
+        s.close()
+    return ip
 
-# ==========================================
-#  PART A: MANUAL UPLOAD ROUTES (Laptop)
-# ==========================================
+# =======================
+# 1. UPLOAD CHOICE PAGE
+# =======================
 
 @prescriptions_bp.route("/upload", methods=["GET"])
 def show_upload_form():
+    """Shows the page with two options: Computer or Phone"""
     return render_template("upload_prescription.html")
 
 @prescriptions_bp.route("/upload_file", methods=["POST"])
 def upload_file():
+    """OPTION A: Handle Manual File Upload from Computer"""
     if 'file' not in request.files:
         flash("No file part", "error")
         return redirect(url_for('prescriptions_bp.show_upload_form'))
@@ -71,45 +59,132 @@ def upload_file():
 
     if file and allowed_file(file.filename):
         filename = secure_filename(f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{file.filename}")
-        
-        # Ensure directory exists using absolute path
-        abs_folder = os.path.join(current_app.root_path, UPLOAD_FOLDER)
-        os.makedirs(abs_folder, exist_ok=True)
-        
-        file.save(os.path.join(abs_folder, filename))
+        abs_path = os.path.join(current_app.root_path, UPLOAD_FOLDER)
+        os.makedirs(abs_path, exist_ok=True)
+        file.save(os.path.join(abs_path, filename))
 
+        # Save directly as confirmed
         collection.insert_one({
             "patient_name": patient_name,
             "doctor_name": doctor_name,
             "filename": filename,
             "file_path": os.path.join(UPLOAD_FOLDER, filename),
             "upload_date": datetime.now(),
-            "status": "stored",
+            "status": "confirmed", 
             "source": "manual"
         })
 
         flash("✅ Prescription Saved Successfully!", "success")
-        return redirect(url_for('prescriptions_bp.show_upload_form'))
+        return redirect(url_for('prescriptions_bp.list_prescriptions'))
     
     return redirect(url_for('prescriptions_bp.show_upload_form'))
 
 
-# ==========================================
-#  PART B: REMOTE CAMERA ROUTES (Mobile)
-# ==========================================
+# =======================
+# 2. REMOTE UPLOAD (PHONE)
+# =======================
 
 @prescriptions_bp.route("/remote_upload", methods=["GET"])
 def remote_upload_page():
+    """OPTION B: Generate QR Code for Phone"""
     token = str(uuid.uuid4())
-    active_sessions[token] = {'status': 'waiting', 'filename': None}
-
-    local_ip = get_offline_ip()
-    
-    # Must use HTTPS for Camera to work on mobile
-    mobile_url = f"https://{local_ip}:5000/prescriptions/mobile/{token}"
-    
-    print(f"🚀 QR Link: {mobile_url}")
+    active_sessions[token] = {'status': 'waiting'}
+    ip = get_wifi_ip()
+    mobile_url = f"http://{ip}:5000/prescriptions/mobile/{token}"
     return render_template("remote_upload_pc.html", token=token, mobile_url=mobile_url)
+
+@prescriptions_bp.route("/check_status/<token>")
+def check_status(token):
+    session = active_sessions.get(token)
+    if not session: return jsonify({"status": "expired"})
+    
+    if session.get('status') == 'done':
+        filename = session.get('filename')
+        del active_sessions[token]
+        return jsonify({"status": "done", "filename": filename})
+        
+    return jsonify({"status": "waiting"})
+
+# =======================
+# 3. REVIEW, LIST & DELETE
+# =======================
+
+@prescriptions_bp.route("/review/<filename>")
+def review_upload(filename):
+    return render_template("review_upload.html", filename=filename)
+
+@prescriptions_bp.route("/save_details", methods=["POST"])
+def save_details():
+    filename = request.form.get("filename")
+    patient = request.form.get("patient_name")
+    doctor = request.form.get("doctor_name")
+    
+    collection.update_one(
+        {"filename": filename},
+        {"$set": {
+            "patient_name": patient,
+            "doctor_name": doctor,
+            "status": "confirmed"
+        }}
+    )
+    flash("✅ Details Saved!", "success")
+    return redirect(url_for('prescriptions_bp.list_prescriptions'))
+
+@prescriptions_bp.route("/list")
+def list_prescriptions():
+    items = list(collection.find({"status": "confirmed"}).sort("upload_date", -1))
+    return render_template("prescriptions_list.html", prescriptions=items)
+
+@prescriptions_bp.route("/delete/<filename>")
+def delete_prescription(filename):
+    """Delete logic"""
+    try:
+        # 1. Delete file
+        abs_path = os.path.join(current_app.root_path, UPLOAD_FOLDER, filename)
+        if os.path.exists(abs_path):
+            os.remove(abs_path)
+        
+        # 2. Delete DB entry
+        collection.delete_one({"filename": filename})
+        flash("🗑️ Deleted Successfully", "success")
+    except Exception as e:
+        flash(f"Error: {str(e)}", "error")
+        
+    return redirect(url_for('prescriptions_bp.list_prescriptions'))
+
+# =======================
+# 4. MOBILE UI ROUTES
+# =======================
+
+@prescriptions_bp.route("/mobile/<token>", methods=["GET"])
+def mobile_camera_page(token):
+    return render_template("remote_upload_mobile.html", token=token)
+
+@prescriptions_bp.route("/mobile_upload/<token>", methods=["POST"])
+def mobile_upload(token):
+    if token not in active_sessions: return "Session expired", 403
+    file = request.files.get('file')
+    if file and allowed_file(file.filename):
+        filename = secure_filename(f"mobile_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg")
+        abs_path = os.path.join(current_app.root_path, UPLOAD_FOLDER)
+        os.makedirs(abs_path, exist_ok=True)
+        file.save(os.path.join(abs_path, filename))
+        
+        # Create Draft
+        collection.insert_one({
+            "filename": filename,
+            "file_path": os.path.join(UPLOAD_FOLDER, filename),
+            "source": "mobile_upload",
+            "upload_date": datetime.now(),
+            "status": "draft",
+            "patient_name": "Pending...",
+            "doctor_name": "Pending..."
+        })
+        
+        active_sessions[token]['status'] = 'done'
+        active_sessions[token]['filename'] = filename
+        return render_template("remote_upload_success.html")
+    return "Invalid File", 400
 
 @prescriptions_bp.route("/qr_code")
 def generate_qr():
@@ -119,40 +194,3 @@ def generate_qr():
     img.save(buf)
     buf.seek(0)
     return send_file(buf, mimetype='image/png')
-
-@prescriptions_bp.route("/check_status/<token>")
-def check_status(token):
-    session = active_sessions.get(token)
-    if not session: return jsonify({"status": "expired"})
-    if session['status'] == 'done':
-        del active_sessions[token]
-        return jsonify({"status": "done", "filename": session['filename']})
-    return jsonify({"status": "waiting"})
-
-@prescriptions_bp.route("/mobile/<token>", methods=["GET"])
-def mobile_camera_page(token):
-    return render_template("remote_upload_mobile.html", token=token)
-
-@prescriptions_bp.route("/mobile_upload/<token>", methods=["POST"])
-def mobile_upload(token):
-    if token not in active_sessions: return jsonify({"error": "Expired"}), 403
-    file = request.files.get('file')
-    if file and allowed_file(file.filename):
-        filename = secure_filename(f"mobile_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg")
-        
-        abs_folder = os.path.join(current_app.root_path, UPLOAD_FOLDER)
-        os.makedirs(abs_folder, exist_ok=True)
-        file.save(os.path.join(abs_folder, filename))
-        
-        active_sessions[token]['status'] = 'done'
-        active_sessions[token]['filename'] = filename
-        
-        collection.insert_one({
-            "filename": filename,
-            "file_path": os.path.join(UPLOAD_FOLDER, filename),
-            "source": "mobile_camera",
-            "upload_date": datetime.now(),
-            "status": "draft"
-        })
-        return render_template("remote_upload_success.html")
-    return "Invalid File", 400

@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto; padding: 30px;">
+    
+    <div style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; gap: 40px; align-items: flex-start;">
+        
+        <div style="flex: 1; text-align: center;">
+            <h3 style="color: #666; margin-bottom: 15px;">Recieved Photo</h3>
+            <div style="padding: 10px; border: 2px dashed #00695c; border-radius: 15px;">
+                <img src="{{ url_for('static', filename='uploads/prescriptions/' + filename) }}" 
+                     style="width: 100%; max-height: 500px; object-fit: contain; border-radius: 10px;">
+            </div>
+        </div>
+
+        <div style="flex: 1;">
+            <h2 style="color: #00695c; margin-top: 0;">📝 Enter Details</h2>
+            <p style="color: #666; margin-bottom: 25px;">Please fill in the prescription details.</p>
+
+            <form action="{{ url_for('prescriptions_bp.save_details') }}" method="POST">
+                <input type="hidden" name="filename" value="{{ filename }}">
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: bold; color: #444; margin-bottom: 8px;">Patient Name</label>
+                    <input type="text" name="patient_name" required 
+                           style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; font-weight: bold; color: #444; margin-bottom: 8px;">Doctor Name</label>
+                    <input type="text" name="doctor_name" required 
+                           style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                </div>
+
+                <button type="submit" 
+                        style="width: 100%; padding: 15px; background: #00695c; color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer;">
+                    ✅ Save & Finish
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,38 +1,57 @@
 {% extends "layout.html" %}
-{% block title %}Upload Prescription | PharmaTrust{% endblock %}
-
 {% block content %}
-<div style="background: white; padding: 40px; border-radius: 16px; max-width: 600px; margin: 0 auto; box-shadow: 0 10px 30px rgba(74, 20, 140, 0.1);">
-    <h2 style="color: #4A148C; text-align: center; margin-bottom: 30px;">
-        <i class="fas fa-file-medical"></i> Upload Prescription
-    </h2>
+<div style="max-width: 1000px; margin: 0 auto; padding: 40px;">
+    
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h2 style="color: #00695c; font-size: 28px; margin-bottom: 10px;">📄 New Prescription</h2>
+        <p style="color: #666;">Choose how you want to upload the document</p>
+    </div>
 
-    <form action="{{ url_for('prescriptions_bp.upload_file') }}" method="POST" enctype="multipart/form-data">
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
         
-        <div style="margin-bottom: 20px;">
-            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Patient Name</label>
-            <input type="text" name="patient_name" required style="width: 100%; padding: 12px; border: 2px solid #D1C4E9; border-radius: 8px;">
+        <div style="flex: 1; min-width: 300px; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="width: 60px; height: 60px; background: #e0f2f1; color: #00695c; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                    <i class="fas fa-desktop" style="font-size: 24px;"></i>
+                </div>
+                <h3 style="margin: 0; color: #333;">Upload from Computer</h3>
+            </div>
+
+            <form action="{{ url_for('prescriptions_bp.upload_file') }}" method="POST" enctype="multipart/form-data">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 13px; font-weight: bold; color: #666; margin-bottom: 5px;">Patient Name</label>
+                    <input type="text" name="patient_name" required style="width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 8px;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 13px; font-weight: bold; color: #666; margin-bottom: 5px;">Doctor Name</label>
+                    <input type="text" name="doctor_name" required style="width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 8px;">
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; font-size: 13px; font-weight: bold; color: #666; margin-bottom: 5px;">File</label>
+                    <input type="file" name="file" required style="width: 100%; padding: 10px; background: #f9f9f9; border-radius: 8px;">
+                </div>
+
+                <button type="submit" style="width: 100%; padding: 15px; background: #00695c; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">
+                    Upload File
+                </button>
+            </form>
         </div>
 
-        <div style="margin-bottom: 20px;">
-            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Doctor Name</label>
-            <input type="text" name="doctor_name" required style="width: 100%; padding: 12px; border: 2px solid #D1C4E9; border-radius: 8px;">
-        </div>
-
-        <div style="margin-bottom: 20px;">
-            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Document</label>
-            <input type="file" name="file" accept=".pdf, .jpg, .png" required style="padding: 10px;">
-        </div>
-
-        <div style="text-align: center; margin-bottom: 20px;">
-            <a href="{{ url_for('prescriptions_bp.remote_upload_page') }}" style="display:inline-block; background:#E1BEE7; color:#4A148C; padding:10px 20px; border-radius:20px; text-decoration:none; font-weight:bold;">
-                <i class="fas fa-camera"></i> Use Phone Camera Instead
+        <div style="flex: 1; min-width: 300px; background: linear-gradient(135deg, #00695c 0%, #004d40 100%); color: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,77,64,0.3); display: flex; flex-direction: column; justify-content: center; text-align: center;">
+            
+            <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <i class="fas fa-mobile-alt" style="font-size: 32px;"></i>
+            </div>
+            
+            <h3 style="margin: 0 0 10px 0; font-size: 24px;">Use Phone Camera</h3>
+            <p style="margin: 0 0 30px 0; opacity: 0.9;">Scan a QR code to upload photos directly from your mobile device.</p>
+            
+            <a href="{{ url_for('prescriptions_bp.remote_upload_page') }}" style="background: white; color: #00695c; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; display: inline-block; transition: transform 0.2s;">
+                <i class="fas fa-qrcode"></i> Generate QR Code
             </a>
         </div>
-
-        <button type="submit" style="width: 100%; padding: 15px; background: #4A148C; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;">
-            Save to Database
-        </button>
-    </form>
+    </div>
 </div>
 {% endblock %}

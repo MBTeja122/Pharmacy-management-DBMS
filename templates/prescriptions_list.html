@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto; padding: 40px;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="color: #00695c; margin: 0;">📂 Prescription History</h2>
+        <a href="{{ url_for('prescriptions_bp.show_upload_form') }}" 
+           style="background: #00695c; color: white; padding: 10px 20px; text-decoration: none; border-radius: 30px; font-weight: bold;">
+           + Upload New
+        </a>
+    </div>
+
+    <div style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.05);">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background: #e0f2f1; color: #00695c;">
+                <tr>
+                    <th style="padding: 15px; text-align: left;">Date</th>
+                    <th style="padding: 15px; text-align: left;">Preview</th>
+                    <th style="padding: 15px; text-align: left;">Patient</th>
+                    <th style="padding: 15px; text-align: left;">Doctor</th>
+                    <th style="padding: 15px; text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if prescriptions %}
+                    {% for p in prescriptions %}
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 15px; color: #666;">{{ p.upload_date.strftime('%Y-%m-%d') }}<br><small>{{ p.upload_date.strftime('%H:%M') }}</small></td>
+                        <td style="padding: 15px;">
+                            <a href="{{ url_for('static', filename='uploads/prescriptions/' + p.filename) }}" target="_blank">
+                                <img src="{{ url_for('static', filename='uploads/prescriptions/' + p.filename) }}" 
+                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;">
+                            </a>
+                        </td>
+                        <td style="padding: 15px; font-weight: bold;">{{ p.patient_name }}</td>
+                        <td style="padding: 15px;">{{ p.doctor_name }}</td>
+                        <td style="padding: 15px; text-align: center;">
+                            <a href="{{ url_for('prescriptions_bp.delete_prescription', filename=p.filename) }}" 
+                               onclick="return confirm('Are you sure you want to delete this?');"
+                               style="color: #c62828; text-decoration: none; padding: 8px 12px; background: #ffebee; border-radius: 6px; font-size: 14px;">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" style="padding: 30px; text-align: center; color: #999;">No prescriptions found.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

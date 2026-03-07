@@ -19,7 +19,7 @@ def login():
     if request.method == "GET":
         employees = get_employees()
         conn.close()
-        return render_template("login.html", employees=employees)
+        return render_template("home.html", employees=employees)
 
     # --- POST LOGIC ---
     employee_id = request.form.get("employee_id")
@@ -41,14 +41,8 @@ def login():
         session["name"] = user["name"]
         session["role"] = user["role"]
         
-        # (Expiry Trigger Logic - Kept same as before)
-        if user['role'] == 'Admin':
-            try:
-                cur.execute("SELECT COUNT(*) as cnt FROM medicines WHERE expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'")
-                res = cur.fetchone()
-                if res and res['cnt'] > 0:
-                    create_notification(f"⏳ Warning: {res['cnt']} medicines expire soon.", "warning", "/admin/analytics")
-            except: pass
+        # (Expiry Trigger Logic)
+
 
         conn.close()
         return redirect(url_for("dash.load"))

@@ -4,20 +4,14 @@
 
 {% block styles %}
 <style>
+    /* ... (Keep your existing styles) ... */
     .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
     .kpi-card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid #ddd; }
     .kpi-card .value { font-size: 26px; font-weight: bold; color: #333; }
     
-    /* Auto-fit grid for 5 cards */
     .ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
     
-    .ai-card { 
-        background: white; padding: 20px; border-radius: 12px; 
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05); 
-        position: relative; height: 280px; 
-        display: flex; flex-direction: column; 
-    }
-    
+    .ai-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); position: relative; height: 280px; display: flex; flex-direction: column; }
     .ai-card.trend { border-top: 5px solid #6200EA; }
     .ai-card.stock { border-top: 5px solid #FFAB00; }
     .ai-card.risk { border-top: 5px solid #D32F2F; }
@@ -25,20 +19,16 @@
     .ai-card.bundle { border-top: 5px solid #2962FF; }
 
     .ai-title { font-weight: bold; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-    .ai-value { font-size: 24px; font-weight: 800; color: #333; margin-bottom: 5px; }
     .ai-sub { font-size: 12px; color: #666; margin-bottom: 15px; }
-    
     .list-box { overflow-y: auto; flex-grow: 1; }
-    .list-item { 
-        padding: 8px; border-radius: 6px; font-size: 11px; margin-bottom: 6px; 
-        display: flex; justify-content: space-between; align-items: center;
-    }
+    .list-item { padding: 8px; border-radius: 6px; font-size: 11px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
     .warn-bg { background: #FFF8E1; color: #E65100; }
     .crit-bg { background: #FFEBEE; color: #C62828; }
     .grey-bg { background: #ECEFF1; color: #455A64; }
     .info-bg { background: #E3F2FD; color: #1565C0; }
 
-    .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px; }
+    /* Chart Layout */
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
     .chart-box { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); min-height: 350px; }
     .no-data { display:flex; align-items:center; justify-content:center; height:100%; color:#999; }
 </style>
@@ -46,7 +36,7 @@
 
 {% block content %}
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
+    
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <h2 style="color:#2B3674; margin:0;">📊 AI Analytics Center</h2>
         <a href="/sales/billing" style="padding:10px 20px; background:#6200EA; color:white; border-radius:8px; text-decoration:none;">Back to POS</a>
@@ -60,12 +50,10 @@
     </div>
 
     <div class="ai-grid">
-        
         <div class="ai-card trend">
             <div class="ai-title"><i class="fas fa-chart-line"></i> Demand Forecast</div>
             <div class="ai-sub">{{ trend_text|safe }}</div>
-            <div id="trend-chart" style="flex-grow:1; width:100%;"></div>
-        </div>
+            </div>
         
         <div class="ai-card stock">
             <div class="ai-title"><i class="fas fa-shipping-fast"></i> Smart Reorder</div>
@@ -80,7 +68,6 @@
                 {% endif %}
             </div>
         </div>
-
         <div class="ai-card risk">
             <div class="ai-title"><i class="fas fa-exclamation-triangle"></i> Expiry Risk</div>
             <div class="ai-value" style="color:#D32F2F;">₹{{ predicted_loss|int }}</div>
@@ -95,63 +82,65 @@
                 {% endif %}
             </div>
         </div>
-
         <div class="ai-card dead">
             <div class="ai-title"><i class="fas fa-box-open"></i> Dead Stock</div>
             <div class="ai-sub">Unsold > 90 days (Cash stuck):</div>
             <div class="list-box">
                 {% if dead_stock_list %}
                     {% for d in dead_stock_list %}
-                    <div class="list-item grey-bg">
-                        <span>{{ d.name }}</span>
-                        <b style="color:#37474F;">₹{{ d.cash }}</b>
-                    </div>
+                    <div class="list-item grey-bg"><span>{{ d.name }}</span><b style="color:#37474F;">₹{{ d.cash }}</b></div>
                     {% endfor %}
                 {% else %}
                     <small style="color:#2E7D32;">✅ No Dead Stock</small>
                 {% endif %}
             </div>
         </div>
-
         <div class="ai-card bundle">
             <div class="ai-title"><i class="fas fa-link"></i> Smart Bundles</div>
             <div class="ai-sub">Frequently bought together:</div>
             <div class="list-box">
                 {% if bundle_suggestions %}
                     {% for b in bundle_suggestions %}
-                    <div class="list-item info-bg">
-                        <span>{{ b.item }} + {{ b.partner }}</span>
-                        <b>{{ b.score }}%</b>
-                    </div>
+                    <div class="list-item info-bg"><span>{{ b.item }} + {{ b.partner }}</span><b>{{ b.score }}%</b></div>
                     {% endfor %}
                 {% else %}
                     <small style="color:#888;">Need more data.</small>
                 {% endif %}
             </div>
         </div>
-
     </div>
 
     <div class="charts-row">
-        <div class="chart-box" id="profit-chart">{% if graph_profit == "{}" %}<div class="no-data">No Data</div>{% endif %}</div>
-        <div class="chart-box" id="cat-chart">{% if graph_cat == "{}" %}<div class="no-data">No Category Data</div>{% endif %}</div>
+        <div class="chart-box" id="revenue-chart">{% if graph_revenue == "{}" %}<div class="no-data">No Revenue Data</div>{% endif %}</div>
+        <div class="chart-box" id="profit-chart">{% if graph_profit == "{}" %}<div class="no-data">No Profit Data</div>{% endif %}</div>
     </div>
     
-    <div class="chart-box" id="hour-chart" style="height:350px;">
-        {% if graph_hour == "{}" %}<div class="no-data">No Peak Hour Data</div>{% endif %}
+    <div class="charts-row">
+        <div class="chart-box" id="top-chart">{% if graph_top == "{}" %}<div class="no-data">No Top Item Data</div>{% endif %}</div>
+        <div class="chart-box" id="hour-chart">{% if graph_hour == "{}" %}<div class="no-data">No Peak Hour Data</div>{% endif %}</div>
     </div>
 
     <script>
-        var tGraph = {{ graph_trend | safe }};
-        if(Object.keys(tGraph).length !== 0) Plotly.newPlot('trend-chart', tGraph.data, tGraph.layout, {displayModeBar: false, responsive: true});
 
+        // 2. Revenue Chart
+        var rGraph = {{ graph_revenue | safe }};
+        if(Object.keys(rGraph).length !== 0) Plotly.newPlot('revenue-chart', rGraph.data, rGraph.layout, {responsive: true});
+
+        // 3. Profit Chart
         var pGraph = {{ graph_profit | safe }};
         if(Object.keys(pGraph).length !== 0) Plotly.newPlot('profit-chart', pGraph.data, pGraph.layout, {responsive: true});
 
-        var cGraph = {{ graph_cat | safe }};
-        if(Object.keys(cGraph).length !== 0) Plotly.newPlot('cat-chart', cGraph.data, cGraph.layout, {responsive: true});
+        // 4. Top Revenue Generators
+        var topGraph = {{ graph_top | safe }};
+        if(Object.keys(topGraph).length !== 0) Plotly.newPlot('top-chart', topGraph.data, topGraph.layout, {responsive: true});
 
+        // 5. Peak Hours (Bar Chart)
         var hGraph = {{ graph_hour | safe }};
         if(Object.keys(hGraph).length !== 0) Plotly.newPlot('hour-chart', hGraph.data, hGraph.layout, {responsive: true});
     </script>
+<div class="card bg-primary text-white p-3">
+    <a href="{{ url_for('admin_bp.purchase_history') }}" class="btn btn-light btn-sm">
+        View Purchase History
+    </a>
+</div>
 {% endblock %}
