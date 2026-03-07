@@ -25,7 +25,31 @@
 | 📦 **Smart Bundling (KNN)** | Conducts Market Basket Analysis using **Cosine Similarity** to automatically recommend frequently co-purchased items. |
 | 🤖 **NLP Pharmabot** | Processes natural language queries via **spaCy** to check stock and sales, with **FuzzyWuzzy** handling complex spelling typos. |
 | 🚨 **Financial Dead Stock** | Quantifies financial exposure by tracking >90 days of dormant inventory, prioritizing alerts by `(Quantity × Cost)`. |
-| 📱 **Zero-Config Mobile Bridging**| Uses dynamic socket resolution to spin up secure local servers for mobile QR uploads without needing internet access. |
+| 📱 **Zero-Config Mobile** | Uses dynamic socket resolution to spin up secure local servers for mobile QR uploads without needing internet access. |
+
+<br />
+
+## 🏗️ System Architecture
+
+PharmaTrust follows a secure, 3-tier architecture with Role-Based Access Control (RBAC), fully separating the UI from the business logic.
+
+* **🖥️ Presentation Layer:** Bootstrap 5 (Responsive UI) and Plotly.js (Interactive Analytics Dashboards).
+* **⚙️ Application Layer (Flask):** Modular Blueprint REST routing, PBKDF2-SHA256 hashed security, and dynamic socket bridging.
+* **🗄️ Hybrid Data & AI Layer:** * **PostgreSQL:** ACID-compliant relational core for 3NF inventory and financial transactions.
+  * **MongoDB:** Flexible NoSQL storage for semi-structured clinical documents and prescriptions.
+  * **scikit-learn & spaCy:** The intelligence engine driving predictive ML and semantic NLP processing.
+
+<br />
+
+## 🔄 NLP Query Execution Flow
+
+How the system handles a pharmacist asking: *"Check stock of Doolo 650"*
+
+1. **User Input:** Pharmacist submits natural language text via the dashboard chatbot.
+2. **Intent Extraction (spaCy):** The NLP engine maps word vectors to identify the user's goal (e.g., `CHECK_INVENTORY`).
+3. **Entity Matching (FuzzyWuzzy):** The system resolves the typo ("Doolo"), finding the closest database match for "Dolo 650" (92% similarity).
+4. **Database Execution:** The Flask backend queries the PostgreSQL relational core for specific batch metadata.
+5. **Smart Response:** The UI returns an actionable response: *"Dolo 650 has 14 strips available (Batch Expiry: 10/2026)."*
 
 <br />
 
@@ -49,81 +73,11 @@ A breakdown of the core libraries and how they power the PharmaTrust architectur
 
 <br />
 
-## 🏗️ System Architecture
-
-PharmaTrust follows a secure, 3-tier architecture with Role-Based Access Control (RBAC), fully separating UI from the business logic.
-
-<details open>
-<summary><b>Click to View Architecture Diagram</b></summary>
-<br>
-
-```mermaid
-graph TD
-    classDef frontend fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px;
-    classDef backend fill:#f1f5f9,stroke:#94a3b8,stroke-width:2px;
-    classDef database fill:#f0fdf4,stroke:#86efac,stroke-width:2px;
-    classDef ai fill:#fff7ed,stroke:#fdba74,stroke-width:2px;
-
-    subgraph Presentation [Frontend Layer]
-        UI[Bootstrap 5 / HTML5 / CSS3]:::frontend
-        Viz[Plotly.js Dashboards]:::frontend
-    end
-
-    subgraph App [Application Layer - Flask]
-        Auth[RBAC & Security]:::backend
-        API[Blueprint Routing]:::backend
-        Sockets[Mobile Socket Bridge]:::backend
-    end
-
-    subgraph DB [Hybrid Data & AI Layer]
-        SQL[(PostgreSQL)]:::database
-        NoSQL[(MongoDB)]:::database
-        ML[ML: scikit-learn]:::ai
-        NLP[NLP: spaCy & FuzzyWuzzy]:::ai
-    end
-
-    UI & Viz <--> API
-    API <--> Auth & Sockets
-    API <--> SQL & NoSQL & NLP
-    SQL --> ML
-```
-</details>
-
-<br />
-
-## 🔄 NLP Query Execution Flow
-
-How the system handles a pharmacist asking: *"Check stock of Doolo 650"*
-
-<details>
-<summary><b>Click to View Request Flow</b></summary>
-<br>
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant App as Flask Server
-    participant spaCy as NLP Intent
-    participant Fuzzy as Entity Matching
-    participant DB as PostgreSQL
-
-    User->>App: "Check stock of Doolo 650"
-    App->>spaCy: Extract intent (Word Vectors)
-    spaCy-->>App: Intent: CHECK_INVENTORY
-    App->>Fuzzy: Resolve typos
-    Fuzzy-->>App: Target: "Dolo 650" (Match Score: 92%)
-    App->>DB: SELECT stock FROM inventory WHERE name='Dolo 650'
-    DB-->>App: Quantity: 14 strips, Expiry: 10/2026
-    App-->>User: "Dolo 650 has 14 strips available."
-```
-</details>
-
-<br />
-
 ## 🚀 Quick Start Guide
 
-<details>
+<details open>
 <summary><b>Local Installation Steps</b></summary>
+<br />
 
 **1. Clone the repository**
 ```bash
