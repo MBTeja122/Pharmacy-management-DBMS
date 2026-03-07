@@ -1,13 +1,25 @@
-Flask 
-psycopg2-binary 
-pymongo 
-nltk 
-scikit-learn 
+
+
+
+# Backend & Framework
+Flask
+Werkzeug
+
+# Databases
+psycopg2-binary
+pymongo
+
+# Machine Learning & Data Processing
+scikit-learn
 pandas
-matplotlib 
-seaborn 
+numpy
+
+# Data Visualization
+seaborn
+plotly
+
+# Natural Language Processing (Pharmabot)
 spacy
-fuzzywuzzy 
-python-Levenshtein 
-textblob 
+fuzzywuzzy
+python-Levenshtein
 tracery
