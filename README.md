@@ -1,126 +1,129 @@
 <div align="center">
-  <h1>💊 PharmaTrust</h1>
-  <p><b>An AI-Driven, Hybrid-Architecture Pharmacy Management System</b></p>
   
-  ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg?logo=python&logoColor=white)
-  ![Flask](https://img.shields.io/badge/Flask-Backend-black.svg?logo=flask&logoColor=white)
-  ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-336791.svg?logo=postgresql&logoColor=white)
-  ![MongoDB](https://img.shields.io/badge/MongoDB-4.4+-47A248.svg?logo=mongodb&logoColor=white)
-  ![scikit-learn](https://img.shields.io/badge/scikit--learn-Machine%20Learning-F7931E.svg?logo=scikit-learn&logoColor=white)
-  ![spaCy](https://img.shields.io/badge/spaCy-NLP-09A3D5.svg)
+  # 💊 PharmaTrust 
+  **AI-Driven & Hybrid-Architecture Pharmacy Management System**
+
+  <p align="center">
+    <img src="https://img.shields.io/badge/Python-3.9+-blue.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+    <img src="https://img.shields.io/badge/Flask-Backend-black.svg?style=for-the-badge&logo=flask&logoColor=white" alt="Flask" />
+    <img src="https://img.shields.io/badge/PostgreSQL-13+-336791.svg?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+    <img src="https://img.shields.io/badge/MongoDB-4.4+-47A248.svg?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+    <img src="https://img.shields.io/badge/scikit--learn-ML-F7931E.svg?style=for-the-badge&logo=scikit-learn&logoColor=white" alt="scikit-learn" />
+  </p>
+
+  > *Transforming traditional pharmacy POS systems into intelligent, data-driven healthcare hubs using Machine Learning and NLP.*
+
 </div>
 
----
+<br />
 
-## 📖 Project Overview
-PharmaTrust is a modern, full-stack pharmacy management platform designed to transcend traditional point-of-sale systems. By integrating **Machine Learning (ML)** for demand forecasting and **Natural Language Processing (NLP)** for intuitive data querying, it empowers pharmacists to make proactive, data-driven decisions. The system employs a robust **Hybrid Database Architecture**, ensuring ACID-compliant financial transactions alongside flexible clinical document storage.
+## ✨ Core Innovations
 
----
+| Feature | Description |
+| :--- | :--- |
+| 📈 **Predictive Forecasting** | Analyzes 30-day sales velocity using **Linear Regression** to generate proactive 7-day revenue and stock projections. |
+| 📦 **Smart Bundling (KNN)** | Conducts Market Basket Analysis using **Cosine Similarity** to automatically recommend frequently co-purchased items. |
+| 🤖 **NLP Pharmabot** | Processes natural language queries via **spaCy** to check stock and sales, with **FuzzyWuzzy** handling complex spelling typos. |
+| 🚨 **Financial Dead Stock** | Quantifies financial exposure by tracking >90 days of dormant inventory, prioritizing alerts by `(Quantity × Cost)`. |
+| 📱 **Zero-Config Mobile Bridging**| Uses dynamic socket resolution to spin up secure local servers for mobile QR uploads without needing internet access. |
 
-## ✨ Core Innovations & Features
+<br />
 
-* 📈 **Predictive Demand Forecasting**: Analyzes 30-day sales velocity to generate 7-day revenue and stock projections.
-* 📦 **Smart Product Bundling**: Utilizes K-Nearest Neighbors (KNN) for Market Basket Analysis, recommending frequently co-purchased items.
-* 🤖 **NLP-Driven Chatbot (Pharmabot)**: Allows pharmacists to query stock availability and revenue summaries using natural language with typo tolerance.
-* 🚨 **Financial Dead Stock Alerts**: Quantifies financial exposure by tracking dormant inventory (>90 days) and prioritizing alerts based on value (Quantity × Cost).
-* 📱 **Zero-Config Mobile Bridging**: Implements dynamic socket resolution to auto-detect local IPs, spinning up secure local servers for mobile QR prescription uploads without internet dependency.
+## 🛠️ Technology Stack & Attribution
 
----
+A breakdown of the core libraries and how they power the PharmaTrust architecture:
+
+### 🧠 Artificial Intelligence & Data Logic
+* **`scikit-learn`**: Drives the predictive analytics engine (Linear Regression for forecasting, KNN for product bundling).
+* **`spaCy` & `en_core_web_md`**: Processes pharmacist input into semantic word vectors for intent classification.
+* **`FuzzyWuzzy`**: Resolves Levenshtein distance for misspelled generic and brand medicine names.
+* **`pandas` & `NumPy`**: Transforms raw SQL output into structured mathematical matrices for ML consumption.
+
+### 🗄️ Hybrid Database Architecture
+* **`PostgreSQL` & `psycopg2`**: The relational core enforcing strict 3NF ACID-compliant transactions for sales and inventory.
+* **`MongoDB` & `PyMongo`**: The flexible NoSQL storage engine handling semi-structured clinical documents and scanned prescriptions.
+
+### ⚙️ Backend & Frontend
+* **`Flask` & `Werkzeug`**: Modular Blueprint architecture handling RESTful routing, secure sessions, and PBKDF2-SHA256 hashing.
+* **`Bootstrap 5` & `Plotly.js`**: Renders the responsive grid UI and interactive visualization dashboards.
+
+<br />
 
 ## 🏗️ System Architecture
 
-PharmaTrust follows a secure, 3-tier architecture with Role-Based Access Control (RBAC), completely separating the presentation layer from business and data logic.
+PharmaTrust follows a secure, 3-tier architecture with Role-Based Access Control (RBAC), fully separating UI from the business logic.
+
+<details open>
+<summary><b>Click to View Architecture Diagram</b></summary>
+<br>
 
 ```mermaid
 graph TD
-    %% Styling
-    classDef frontend fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
-    classDef backend fill:#f3e5f5,stroke:#4a148c,stroke-width:2px;
-    classDef database fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px;
-    classDef ai fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef frontend fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px;
+    classDef backend fill:#f1f5f9,stroke:#94a3b8,stroke-width:2px;
+    classDef database fill:#f0fdf4,stroke:#86efac,stroke-width:2px;
+    classDef ai fill:#fff7ed,stroke:#fdba74,stroke-width:2px;
 
-    %% Nodes
-    subgraph Presentation_Layer [Presentation Layer]
-        UI[Web UI: HTML5, CSS3, Bootstrap 5]:::frontend
-        Viz[Dashboards: Plotly.js, Vanilla JS]:::frontend
+    subgraph Presentation [Frontend Layer]
+        UI[Bootstrap 5 / HTML5 / CSS3]:::frontend
+        Viz[Plotly.js Dashboards]:::frontend
     end
 
-    subgraph Application_Layer [Application Layer - Flask]
-        Auth[Auth & RBAC Sessions]:::backend
-        API[RESTful Blueprint Endpoints]:::backend
-        Sockets[Zero-Config Mobile Sockets]:::backend
+    subgraph App [Application Layer - Flask]
+        Auth[RBAC & Security]:::backend
+        API[Blueprint Routing]:::backend
+        Sockets[Mobile Socket Bridge]:::backend
     end
 
-    subgraph Data_AI_Layer [Data & AI Layer]
-        SQL[(PostgreSQL: Core Transactions)]:::database
-        NoSQL[(MongoDB: Prescriptions)]:::database
-        ML[ML Engine: scikit-learn]:::ai
-        NLP[NLP Engine: spaCy & FuzzyWuzzy]:::ai
+    subgraph DB [Hybrid Data & AI Layer]
+        SQL[(PostgreSQL)]:::database
+        NoSQL[(MongoDB)]:::database
+        ML[ML: scikit-learn]:::ai
+        NLP[NLP: spaCy & FuzzyWuzzy]:::ai
     end
 
-    %% Connections
-    UI <--> API
-    Viz <--> API
-    API <--> Auth
-    Auth <--> SQL
-    API <--> SQL
-    API <--> NoSQL
-    API <--> Sockets
+    UI & Viz <--> API
+    API <--> Auth & Sockets
+    API <--> SQL & NoSQL & NLP
     SQL --> ML
-    API <--> NLP
 ```
+</details>
 
----
+<br />
 
-## 🔄 NLP Request Flow
+## 🔄 NLP Query Execution Flow
 
-Below is the execution flow when a pharmacist interacts with the Pharmabot:
+How the system handles a pharmacist asking: *"Check stock of Doolo 650"*
+
+<details>
+<summary><b>Click to View Request Flow</b></summary>
+<br>
 
 ```mermaid
 sequenceDiagram
     participant User
-    participant FlaskRoute as Flask Route
-    participant spaCy as spaCy (Intent)
-    participant FuzzyWuzzy as FuzzyWuzzy (Entity)
-    participant PostgreSQL
+    participant App as Flask Server
+    participant spaCy as NLP Intent
+    participant Fuzzy as Entity Matching
+    participant DB as PostgreSQL
 
-    User->>FlaskRoute: "Check stock of Doolo 650"
-    FlaskRoute->>spaCy: Extract intent via Word Vectors
-    spaCy-->>FlaskRoute: Intent: "CHECK_INVENTORY"
-    FlaskRoute->>FuzzyWuzzy: Extract target & resolve typos
-    FuzzyWuzzy-->>FlaskRoute: Target: "Dolo 650" (Score: 92)
-    FlaskRoute->>PostgreSQL: SELECT stock FROM medicines WHERE name='Dolo 650'
-    PostgreSQL-->>FlaskRoute: Returns quantity & batch data
-    FlaskRoute-->>User: "Dolo 650 has 14 strips available (Batch Expiry: 10/2026)."
+    User->>App: "Check stock of Doolo 650"
+    App->>spaCy: Extract intent (Word Vectors)
+    spaCy-->>App: Intent: CHECK_INVENTORY
+    App->>Fuzzy: Resolve typos
+    Fuzzy-->>App: Target: "Dolo 650" (Match Score: 92%)
+    App->>DB: SELECT stock FROM inventory WHERE name='Dolo 650'
+    DB-->>App: Quantity: 14 strips, Expiry: 10/2026
+    App-->>User: "Dolo 650 has 14 strips available."
 ```
+</details>
 
----
+<br />
 
-## 📚 Acknowledgments & Library Usage
+## 🚀 Quick Start Guide
 
-This project heavily relies on the incredible work of the open-source community. Below is an acknowledgment of the core libraries and how they are integrated into PharmaTrust's architecture:
-
-### 🧠 Artificial Intelligence & Machine Learning
-* **[scikit-learn](https://scikit-learn.org/)**: The backbone of the predictive analytics engine. Used to deploy **Linear Regression** for calculating 30-day sales slopes (demand forecasting) and **K-Nearest Neighbors (KNN)** utilizing Cosine Similarity for intelligent product bundling.
-* **[spaCy](https://spacy.io/)**: Powers the intent classification of the Pharmabot. Utilizing the `en_core_web_md` model, it processes user input into semantic word vectors to understand the context of queries beyond simple keyword matching.
-* **[FuzzyWuzzy](https://github.com/seatgeek/fuzzywuzzy) & python-Levenshtein**: Provides high-accuracy entity resolution. It calculates Levenshtein distance (via `WRatio`) to match misspelled medicine names in user queries against the PostgreSQL database.
-* **[pandas](https://pandas.pydata.org/) & [NumPy](https://numpy.org/)**: Crucial for data vectorization, transforming raw relational SQL output into structured matrices for ML model consumption.
-
-### ⚙️ Backend Framework & Middleware
-* **[Flask](https://flask.palletsprojects.com/)**: The core backend framework. Utilizes a modular `Blueprint` structure to route discrete services (Billing, Admin, Inventory) cleanly.
-* **[Werkzeug](https://werkzeug.palletsprojects.com/)**: Provides cryptographic security via PBKDF2-SHA256 password hashing and secure user session management.
-
-### 🗄️ Hybrid Database Drivers
-* **[psycopg2](https://www.psycopg.org/)**: The robust PostgreSQL adapter for Python. Used to execute optimized raw SQL queries, enforcing 3NF referential integrity for sales, purchases, and batch tracking.
-* **[PyMongo](https://pymongo.readthedocs.io/)**: The official driver for MongoDB, enabling high-speed binary document storage and retrieval for scanned prescriptions and unstructured metadata.
-
-### 🎨 Frontend & Visualization
-* **[Bootstrap 5](https://getbootstrap.com/)**: Delivers the mobile-first, responsive grid architecture and UI components.
-* **[Plotly.js](https://plotly.com/javascript/)**: Renders the complex, interactive data visualizations on the admin dashboard, turning ML forecasts into readable graphs.
-
----
-
-## 🛠️ Local Setup & Installation
+<details>
+<summary><b>Local Installation Steps</b></summary>
 
 **1. Clone the repository**
 ```bash
@@ -128,20 +131,19 @@ git clone [https://github.com/yourusername/PharmaTrust.git](https://github.com/y
 cd PharmaTrust
 ```
 
-**2. Create a virtual environment**
+**2. Setup Virtual Environment**
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 ```
 
-**3. Install dependencies**
+**3. Install Dependencies**
 ```bash
 pip install -r requirements.txt
 python -m spacy download en_core_web_md
 ```
 
-**4. Configure Databases**
-Ensure PostgreSQL and MongoDB are running locally. Create a `.env` file in the root directory and add your credentials:
+**4. Environment Variables (`.env`)**
 ```env
 PG_DB=pharmatrust_db
 PG_USER=postgres
@@ -149,14 +151,14 @@ PG_PASS=yourpassword
 MONGO_URI=mongodb://localhost:27017/
 ```
 
-**5. Run the Application**
+**5. Launch Server**
 ```bash
 python app.py
 ```
-*The server will start and output the local network IP for the Zero-Config Mobile QR upload feature.*
+</details>
 
 ---
 
 <div align="center">
-  <i>Developed with ❤️ for optimizing healthcare inventory management.</i>
+  <i>Developed to optimize healthcare inventory and eliminate dead stock.</i>
 </div>
