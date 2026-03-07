@@ -125,16 +125,26 @@ python app.py
 ---
 <br />
 
-## 🙏 Acknowledgments & Open Source Attribution
+## 🙏 Open Source Attribution & Acknowledgments
 
-Building a complex, AI-driven system like PharmaTrust would not be possible without the foundational work of the open-source community. We extend our deepest gratitude to the creators, maintainers, and contributors of the following projects:
+PharmaTrust is built on the shoulders of giants. We extend our deepest gratitude to the creators, maintainers, and contributors of the following open-source projects that power our AI-driven architecture:
 
-* **[Parrot Paraphraser](https://github.com/PrithivirajDamodaran/Parrot_Paraphraser):** A special acknowledgment for providing the robust linguistic engine that normalizes and corrects user grammar, significantly enhancing our chatbot's intent accuracy.
-* **[spaCy](https://spacy.io/):** For the powerful NLP processing framework and pre-trained word vectors that drive the semantic understanding behind our Pharmabot.
-* **[scikit-learn](https://scikit-learn.org/):** For the accessible, highly optimized machine learning algorithms that make our predictive demand forecasting and KNN bundling possible.
-* **[FuzzyWuzzy](https://github.com/seatgeek/fuzzywuzzy):** For the brilliant Levenshtein distance string-matching algorithms that allow our system to gracefully handle complex medical spelling errors.
-* **[Flask](https://flask.palletsprojects.com/) & [Werkzeug](https://werkzeug.palletsprojects.com/):** For the lightweight yet highly scalable Python backend architecture that serves as the backbone of our application.
-* **[PostgreSQL](https://www.postgresql.org/) & [MongoDB](https://www.mongodb.com/):** For providing the rock-solid data infrastructure needed to build our hybrid transactional and document storage system.
-<div align="center">
+### 🤖 Natural Language Processing & Chatbot (Pharmabot)
+* **[spaCy](https://spacy.io/) & `en_core_web_md`**: For providing the industrial-strength NLP framework and pre-trained word vectors that drive our semantic intent classification, allowing the bot to understand contextual meaning rather than relying on keyword matching.
+* **[FuzzyWuzzy](https://github.com/seatgeek/fuzzywuzzy) & [python-Levenshtein](https://pypi.org/project/python-Levenshtein/)**: For the brilliant string-matching algorithms that calculate Levenshtein distance (via `WRatio`), allowing our system to gracefully handle complex medical spelling errors and resolve entities accurately.
+* **[Tracery](https://github.com/galaxykate/tracery)**: For the dynamic, grammar-based text generation engine that allows our chatbot to construct natural, varied, and conversational responses.
+
+### 🧠 Machine Learning & Data Analytics
+* **[scikit-learn](https://scikit-learn.org/)**: For the accessible, highly optimized machine learning algorithms that power our predictive demand forecasting (Linear Regression) and smart product bundling (K-Nearest Neighbors).
+* **[pandas](https://pandas.pydata.org/) & [NumPy](https://numpy.org/)**: For the robust data structures and matrix transformations that make our ML data preparation and feature extraction possible.
+
+### 📊 Data Visualization
+* **[Plotly.js](https://plotly.com/javascript/)**: For the highly interactive, web-based charting library that brings our predictive analytics and dashboard metrics to life on the frontend.
+* **[Matplotlib](https://matplotlib.org/) & [Seaborn](https://seaborn.pydata.org/)**: For the exceptional statistical data visualization libraries utilized for deeper analytical plotting of sales distributions and inventory velocity.
+
+### ⚙️ Backend Framework & Hybrid Databases
+* **[Flask](https://flask.palletsprojects.com/) & [Werkzeug](https://werkzeug.palletsprojects.com/)**: For the lightweight yet highly scalable Python web framework and cryptographic security that handles our RESTful Blueprint routing and secure application logic.
+* **[psycopg2-binary](https://www.psycopg.org/)**: For the robust PostgreSQL adapter that executes our optimized raw SQL queries, ensuring strict 3NF referential integrity and ACID-compliant transactions.
+* **[PyMongo](https://pymongo.readthedocs.io/)**: For the official Python driver that enables seamless, high-speed document storage for our unstructured clinical metadata within MongoDB.
   <i>Developed to optimize healthcare inventory and eliminate dead stock.</i>
 </div>
