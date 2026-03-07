@@ -23,7 +23,7 @@
 | :--- | :--- |
 | 📈 **Predictive Forecasting** | Analyzes 30-day sales velocity using **Linear Regression** to generate proactive 7-day revenue and stock projections. |
 | 📦 **Smart Bundling (KNN)** | Conducts Market Basket Analysis using **Cosine Similarity** to automatically recommend frequently co-purchased items. |
-| 🤖 **NLP Pharmabot** | Processes natural language queries via **spaCy** to check stock and sales, with **FuzzyWuzzy** handling complex spelling typos. |
+| 🤖 **NLP Pharmabot** | Processes natural language queries via a multi-layered NLP pipeline to check stock and sales, tolerating complex spelling typos. |
 | 🚨 **Financial Dead Stock** | Quantifies financial exposure by tracking >90 days of dormant inventory, prioritizing alerts by `(Quantity × Cost)`. |
 | 📱 **Zero-Config Mobile** | Uses dynamic socket resolution to spin up secure local servers for mobile QR uploads without needing internet access. |
 
@@ -46,30 +46,40 @@ PharmaTrust follows a secure, 3-tier architecture with Role-Based Access Control
 How the system handles a pharmacist asking: *"Check stock of Doolo 650"*
 
 1. **User Input:** Pharmacist submits natural language text via the dashboard chatbot.
-2. **Intent Extraction (spaCy):** The NLP engine maps word vectors to identify the user's goal (e.g., `CHECK_INVENTORY`).
-3. **Entity Matching (FuzzyWuzzy):** The system resolves the typo ("Doolo"), finding the closest database match for "Dolo 650" (92% similarity).
-4. **Database Execution:** The Flask backend queries the PostgreSQL relational core for specific batch metadata.
-5. **Smart Response:** The UI returns an actionable response: *"Dolo 650 has 14 strips available (Batch Expiry: 10/2026)."*
+2. **Grammar Normalization (Parrot):** The input is paraphrased and linguistically corrected to ensure standardized syntax.
+3. **Intent Extraction (spaCy):** The NLP engine maps word vectors to identify the user's goal (e.g., `CHECK_INVENTORY`).
+4. **Entity Matching (FuzzyWuzzy):** The system resolves the typo ("Doolo"), finding the closest database match for "Dolo 650" (92% similarity).
+5. **Database Execution:** The Flask backend queries the PostgreSQL relational core for specific batch metadata.
+6. **Smart Response:** The UI returns an actionable response: *"Dolo 650 has 14 strips available (Batch Expiry: 10/2026)."*
 
 <br />
 
-## 🛠️ Technology Stack & Attribution
+## 🛠️ Extensive Technology Stack & Library Attribution
 
-A breakdown of the core libraries and how they power the PharmaTrust architecture:
+PharmaTrust heavily relies on the incredible work of the open-source community. Below is a detailed attribution of the core libraries and how they are architected within the system:
 
-### 🧠 Artificial Intelligence & Data Logic
-* **`scikit-learn`**: Drives the predictive analytics engine (Linear Regression for forecasting, KNN for product bundling).
-* **`spaCy` & `en_core_web_md`**: Processes pharmacist input into semantic word vectors for intent classification.
-* **`FuzzyWuzzy`**: Resolves Levenshtein distance for misspelled generic and brand medicine names.
-* **`pandas` & `NumPy`**: Transforms raw SQL output into structured mathematical matrices for ML consumption.
+### 🤖 The Pharmabot NLP Stack
+The natural language interface of PharmaTrust relies on a sophisticated, multi-layered pipeline to process, correct, and understand free-text queries.
+* **`spaCy` (`en_core_web_md`) - Semantic Intent Classification:** Acts as the core analytical engine. It converts user queries into multi-dimensional word vectors. Instead of rigid keyword matching, spaCy calculates the cosine similarity between the input and predefined intent categories (e.g., `CHECK_STOCK`), allowing the bot to understand the *meaning* behind the sentence.
+* **`Parrot` Paraphraser - Linguistic Correction:** Acts as the linguistic bridge, normalizing user input before it hits the intent classifier. By paraphrasing messy or grammatically incorrect queries into standardized syntax, it significantly increases the accuracy of spaCy's intent matching and ensures the bot handles conversational variations gracefully.
+* **`FuzzyWuzzy` & `python-Levenshtein` - Entity Resolution:** The typo-tolerance mechanism for complex medical terminology. Pharmacists often misspell generic drug names. FuzzyWuzzy calculates the Levenshtein distance (the minimum number of single-character edits required to change one word into another) using the `WRatio` scoring method, ensuring the chatbot retrieves the correct database entity despite human error.
 
-### 🗄️ Hybrid Database Architecture
-* **`PostgreSQL` & `psycopg2`**: The relational core enforcing strict 3NF ACID-compliant transactions for sales and inventory.
-* **`MongoDB` & `PyMongo`**: The flexible NoSQL storage engine handling semi-structured clinical documents and scanned prescriptions.
+### 🧠 Machine Learning & Data Logic
+* **`scikit-learn`**: The backbone of the predictive analytics engine. Deploys **Linear Regression** for calculating 30-day sales slopes (demand forecasting) and **K-Nearest Neighbors (KNN)** utilizing Cosine Similarity for intelligent product bundling.
+* **`pandas` & `NumPy`**: Crucial for data vectorization, transforming raw relational SQL output from PostgreSQL into structured mathematical matrices for ML model consumption.
 
-### ⚙️ Backend & Frontend
-* **`Flask` & `Werkzeug`**: Modular Blueprint architecture handling RESTful routing, secure sessions, and PBKDF2-SHA256 hashing.
-* **`Bootstrap 5` & `Plotly.js`**: Renders the responsive grid UI and interactive visualization dashboards.
+### 🗄️ Hybrid Database Drivers
+* **`psycopg2` (PostgreSQL Adapter)**: Executes optimized raw SQL queries, enforcing strict 3NF referential integrity and ACID compliance for sales, purchases, and batch tracking within the PostgreSQL core.
+* **`PyMongo` (MongoDB Driver)**: Enables high-speed binary document storage and retrieval for scanned prescriptions and unstructured clinical metadata within the MongoDB cluster.
+
+### ⚙️ Backend Framework & Middleware
+* **`Flask`**: The core backend framework, utilizing a modular `Blueprint` structure to route discrete services cleanly.
+* **`Werkzeug`**: Provides cryptographic security via PBKDF2-SHA256 password hashing and secure user session management.
+* **Python `socket`**: Auto-detects the host machine's IP address to enable the Zero-Config mobile bridging feature for local network routing.
+
+### 🎨 Frontend & Visualization
+* **`Bootstrap 5`**: Delivers the mobile-first, responsive grid architecture and UI components.
+* **`Plotly.js`**: Renders the complex, interactive data visualizations on the admin dashboard, turning ML forecasts into readable, hoverable graphs.
 
 <br />
 
@@ -109,6 +119,7 @@ MONGO_URI=mongodb://localhost:27017/
 ```bash
 python app.py
 ```
+*Note: The server will automatically output your local network IP in the terminal to connect your mobile device for QR uploads.*
 </details>
 
 ---
