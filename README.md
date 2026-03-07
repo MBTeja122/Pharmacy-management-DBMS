@@ -123,7 +123,18 @@ python app.py
 </details>
 
 ---
+<br />
 
+## 🙏 Acknowledgments & Open Source Attribution
+
+Building a complex, AI-driven system like PharmaTrust would not be possible without the foundational work of the open-source community. We extend our deepest gratitude to the creators, maintainers, and contributors of the following projects:
+
+* **[Parrot Paraphraser](https://github.com/PrithivirajDamodaran/Parrot_Paraphraser):** A special acknowledgment for providing the robust linguistic engine that normalizes and corrects user grammar, significantly enhancing our chatbot's intent accuracy.
+* **[spaCy](https://spacy.io/):** For the powerful NLP processing framework and pre-trained word vectors that drive the semantic understanding behind our Pharmabot.
+* **[scikit-learn](https://scikit-learn.org/):** For the accessible, highly optimized machine learning algorithms that make our predictive demand forecasting and KNN bundling possible.
+* **[FuzzyWuzzy](https://github.com/seatgeek/fuzzywuzzy):** For the brilliant Levenshtein distance string-matching algorithms that allow our system to gracefully handle complex medical spelling errors.
+* **[Flask](https://flask.palletsprojects.com/) & [Werkzeug](https://werkzeug.palletsprojects.com/):** For the lightweight yet highly scalable Python backend architecture that serves as the backbone of our application.
+* **[PostgreSQL](https://www.postgresql.org/) & [MongoDB](https://www.mongodb.com/):** For providing the rock-solid data infrastructure needed to build our hybrid transactional and document storage system.
 <div align="center">
   <i>Developed to optimize healthcare inventory and eliminate dead stock.</i>
 </div>
