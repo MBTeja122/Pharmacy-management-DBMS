@@ -1,0 +1,9 @@
+.env.example
+.history
+venv
+DEPLOYMENT.md  
+models/__pycache__
+routes/__pycache__
+routes/chatbot/__pycache__
+
+

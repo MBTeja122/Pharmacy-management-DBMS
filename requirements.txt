@@ -1,9 +1,11 @@
 
-
+qrcode
 
 # Backend & Framework
 Flask
 Werkzeug
+gunicorn
+python-dotenv
 
 # Databases
 psycopg2-binary
@@ -23,3 +25,6 @@ spacy
 fuzzywuzzy
 python-Levenshtein
 tracery
+textblob
+qrcode
+Pillow

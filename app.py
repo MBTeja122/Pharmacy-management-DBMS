@@ -19,7 +19,7 @@ from routes.prescription_routes import prescriptions_bp
 from routes.audit_routes import audit_bp
 
 app = Flask(__name__)
-app.secret_key = "PHARMA_SECRET_KEY_123"
+app.secret_key = os.getenv("SECRET_KEY", "PHARMA_SECRET_KEY_123")
 app.permanent_session_lifetime = timedelta(minutes=30)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
@@ -53,7 +53,8 @@ def get_local_ip():
 
 if __name__ == "__main__":
     ip = get_local_ip()
-    port = 5000
+    port = int(os.getenv("PORT", "5000"))
+    debug_mode = os.getenv("FLASK_DEBUG", "false").lower() == "true"
     
     print("\n-------------------------------------------------------")
     print("🚀 PHARMA SERVER STARTED (HTTP Mode)")
@@ -61,4 +62,4 @@ if __name__ == "__main__":
     print("-------------------------------------------------------")
     
     # SSL Removed! Now running on standard HTTP.
-    app.run(debug=True, host='0.0.0.0', port=port)
+    app.run(debug=debug_mode, host='0.0.0.0', port=port)

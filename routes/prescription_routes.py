@@ -11,8 +11,8 @@ from werkzeug.utils import secure_filename
 prescriptions_bp = Blueprint('prescriptions_bp', __name__)
 
 # --- CONFIG ---
-client = MongoClient("mongodb://localhost:27017/")
-db = client["pharmacy_db"]
+client = MongoClient(os.getenv("MONGO_URI", "mongodb://localhost:27017/"))
+db = client[os.getenv("MONGO_DB_NAME", "pharmacy_db")]
 collection = db["prescriptions"]
 UPLOAD_FOLDER = 'static/uploads/prescriptions'
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'heic'}

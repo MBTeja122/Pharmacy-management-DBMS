@@ -136,7 +136,7 @@ def execute_logic(parsed_data, user_id):
         if intent == "CHECK_SALES":
             # Assuming you have a 'sales' or 'bills' table. Adjust table name if needed.
             # Example: Calculating total for today
-            cur.execute("SELECT SUM(total_amount) as total FROM bills WHERE date(created_at) = CURRENT_DATE")
+            cur.execute("SELECT SUM(total_amount) as total FROM sales WHERE date(created_at) = CURRENT_DATE")
             row = cur.fetchone()
             total = row['total'] if row and row['total'] else 0
             result_text = f"💰 <b>Sales Today:</b> ₹{total}"

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,9 +9,12 @@
     <style>
         /* --- THEME: TRUST & PROTECTION (Royal Purple) --- */
         :root {
-            --primary-deep: #4A148C;      /* Deep Royal Purple */
-            --primary-light: #7B1FA2;     /* Violet */
-            --bg-canvas: #F3E5F5;         /* Very Light Purple Grey */
+            --primary-deep: #4A148C;
+            /* Deep Royal Purple */
+            --primary-light: #7B1FA2;
+            /* Violet */
+            --bg-canvas: #F3E5F5;
+            /* Very Light Purple Grey */
             --card-surface: #FFFFFF;
             --text-main: #2E1A47;
             --input-border: #D1C4E9;
@@ -21,11 +25,23 @@
         }
 
         @keyframes cardLoad {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
 
         body {
             height: 100vh;
@@ -57,7 +73,7 @@
             font-weight: 700;
             margin-bottom: 25px;
         }
-        
+
         .alert-box {
             padding: 15px;
             border-radius: 8px;
@@ -67,27 +83,51 @@
             font-size: 14px;
             line-height: 1.5;
         }
-        .alert-success { background-color: var(--success-bg); color: var(--success-text); border-color: #C8E6C9; }
-        .alert-error { background-color: var(--error-bg); color: var(--error-text); border-color: #FFCDD2; }
-        
-        .form-group { position: relative; margin-bottom: 20px; }
+
+        .alert-success {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            border-color: #C8E6C9;
+        }
+
+        .alert-error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border-color: #FFCDD2;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
 
         label {
-            position: absolute; left: 15px; top: 15px;
-            color: #888; font-size: 15px; transition: 0.3s;
-            pointer-events: none; background: transparent;
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: #888;
+            font-size: 15px;
+            transition: 0.3s;
+            pointer-events: none;
+            background: transparent;
         }
 
-        input, select {
-            width: 100%; padding: 14px;
+        input,
+        select {
+            width: 100%;
+            padding: 14px;
             border: 2px solid var(--input-border);
-            border-radius: 8px; font-size: 15px;
-            color: var(--text-main); background: #FAFAFA;
+            border-radius: 8px;
+            font-size: 15px;
+            color: var(--text-main);
+            background: #FAFAFA;
             transition: 0.3s;
         }
-        
-        input:focus, select:focus, 
-        input:not(:placeholder-shown), select:valid {
+
+        input:focus,
+        select:focus,
+        input:not(:placeholder-shown),
+        select:valid {
             border-color: var(--primary-light);
             background: #FFF;
             box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.1);
@@ -99,9 +139,10 @@
             border-color: var(--error-text) !important;
             background-color: #FFF5F5 !important;
         }
-        
+
         .validation-msg {
-            display: none; /* Hidden by default */
+            display: none;
+            /* Hidden by default */
             color: var(--error-text);
             font-size: 12px;
             margin-top: 5px;
@@ -109,34 +150,63 @@
             padding-left: 5px;
         }
 
-        input:focus + label, select:focus + label,
-        input:not(:placeholder-shown) + label, select:valid + label {
-            top: -10px; left: 10px; font-size: 12px;
-            color: var(--primary-light); font-weight: bold;
-            background: var(--card-surface); padding: 0 5px;
+        input:focus+label,
+        select:focus+label,
+        input:not(:placeholder-shown)+label,
+        select:valid+label {
+            top: -10px;
+            left: 10px;
+            font-size: 12px;
+            color: var(--primary-light);
+            font-weight: bold;
+            background: var(--card-surface);
+            padding: 0 5px;
         }
-        
-        input::placeholder { color: transparent; }
+
+        input::placeholder {
+            color: transparent;
+        }
 
         .create-btn {
-            width: 100%; padding: 16px;
+            width: 100%;
+            padding: 16px;
             background: linear-gradient(135deg, var(--primary-deep), var(--primary-light));
-            color: white; border: none; border-radius: 8px;
-            font-size: 16px; font-weight: bold; text-transform: uppercase;
-            cursor: pointer; margin-top: 10px; transition: 0.3s;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
         }
 
-        .create-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(74, 20, 140, 0.3); }
+        .create-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74, 20, 140, 0.3);
+        }
 
         .create-btn:disabled {
-            background: #ccc; cursor: not-allowed; transform: none; box-shadow: none;
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .back-link {
-            display: block; margin-top: 25px; text-align: center;
-            text-decoration: none; color: var(--text-main); font-weight: 600;
+            display: block;
+            margin-top: 25px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
         }
-        .back-link:hover { color: var(--primary-light); text-decoration: underline; }
+
+        .back-link:hover {
+            color: var(--primary-light);
+            text-decoration: underline;
+        }
     </style>
 </head>
 
@@ -144,9 +214,8 @@
 
     <div class="card">
 
-        <img src="../static/college_logo.png" 
-         alt="Logo" 
-         style="position: absolute; top: 25px; left: 25px; width: 60px; height: auto;">
+        <img src="{{ url_for('static', filename='college_logo.png') }}" alt="Logo"
+            style="position: absolute; top: 25px; left: 25px; width: 60px; height: auto;">
         <div class="title">Staff Registration</div>
 
         {% if message %}
@@ -166,7 +235,7 @@
             </div>
 
             <div class="form-group">
-                <input type="email" name="email" id="email" placeholder=" " >
+                <input type="email" name="email" id="email" placeholder=" ">
                 <label for="email">Email Address</label>
                 <div class="validation-msg" id="emailError">⚠️ Please enter a valid email address</div>
             </div>
@@ -208,13 +277,13 @@
         const passwordInput = document.getElementById('password');
         const confirmInput = document.getElementById('confirm_password');
         const passwordError = document.getElementById('passwordError');
-        
+
         const phoneInput = document.getElementById('phone');
         const phoneError = document.getElementById('phoneError');
-        
+
         const emailInput = document.getElementById('email');
         const emailError = document.getElementById('emailError');
-        
+
         const submitBtn = document.getElementById('submitBtn');
 
         // --- 1. Main Check Function ---
@@ -269,7 +338,7 @@
             const email = emailInput.value;
             // Standard Regex for Email: something@something.domain
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            
+
             if (email.length > 0) {
                 if (!emailRegex.test(email)) {
                     emailInput.classList.add('input-error');
@@ -295,4 +364,5 @@
     </script>
 
 </body>
+
 </html>
